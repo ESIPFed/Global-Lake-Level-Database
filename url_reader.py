@@ -16,4 +16,3 @@ def url_reader():
     df.columns = headers
     return df
 
-
