@@ -1,6 +1,7 @@
 def data_grab(df):
     import os
     from pathlib import Path
+    import certifi
     import urllib3
     import pandas as pd
 
