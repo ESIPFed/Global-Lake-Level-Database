@@ -14,5 +14,6 @@ def url_reader():
     headers = ['Lake_#', 'Lake_Name', 'Latitude', 'Longitude', 'YYYYMMDD',
                'Hr', 'Min', 'Ht(m)', 'Sigma(m)', 'Updated_on']
     df.columns = headers
+    df = df.dropna()
     return df
 
