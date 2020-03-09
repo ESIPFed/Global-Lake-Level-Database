@@ -1,10 +1,11 @@
 def url_reader():
     import urllib3
+    import certifi
     import pandas as pd
 
     target_url = 'https://ipad.fas.usda.gov/lakes/images/summary2.txt'
 
-    http = urllib3.PoolManager()
+    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
     req = http.request('GET', target_url)
     text = req.data.decode()

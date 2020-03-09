@@ -11,7 +11,7 @@ def data_grab(df):
     else:
         print('Directory ', data_folder, ' already Exists')
 
-    http = urllib3.PoolManager()
+    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
     for id, name in zip(df['Lake_#'], df['Lake_Name']):
         if id == '0012':
