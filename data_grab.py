@@ -40,5 +40,3 @@ def data_grab(df):
             df_path = lake_folder / '{}_{}_water_level_data.csv'.format(id, name)
             print('writing dataframe to: ', df_path)
             df.to_csv(df_path, index = False)
-            return df
-
