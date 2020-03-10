@@ -40,4 +40,4 @@ def data_grab(df):
             df = pd.DataFrame([i.split() for i in text_by_line[50:]], columns = None)
             df_path = lake_folder / '{}_{}_water_level_data.csv'.format(id, name)
             print('writing dataframe to: ', df_path)
-            df.to_csv(df_path, index = False)
+            df.to_csv(df_path, index=False)
