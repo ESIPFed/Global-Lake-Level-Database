@@ -32,12 +32,12 @@ def data_grab(df):
 
             header_text = '\n'.join(text_by_line[:49])
             header_information_path = lake_folder / '{}_{}_header_information.txt'.format(id, name)
-            print('Writing header information to: ', header_information_path)
+            print('Writing header information to..... ', header_information_path)
             header_information = open(header_information_path, 'w')
             header_information.write(header_text)
             header_information.close()
 
             df = pd.DataFrame([i.split() for i in text_by_line[50:]], columns = None)
             df_path = lake_folder / '{}_{}_water_level_data.csv'.format(id, name)
-            print('writing dataframe to: ', df_path)
+            print('writing dataframe to..... ', df_path)
             df.to_csv(df_path, index=False)
