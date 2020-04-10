@@ -2,7 +2,7 @@ def usgs_datagrab():
     import urllib3
     import certifi
     import re
-    import hydrofunctions as hf
+    import pandas as pd
 
     target_url = 'https://nwis.waterdata.usgs.gov/usa/nwis/uv/?referred_module=sw&site_tp_cd=LK&index_pmcode_72020=' \
                  '1&index_pmcode_72150=1&index_pmcode_72292=1&index_pmcode_62615=1&index_pmcode_62617=1&group_key=' \
@@ -22,16 +22,21 @@ def usgs_datagrab():
             site_id_list.append(str(site_id.group()))
     print(site_id_list)
 
-    start_date = '1950-10-01'
     for ids in site_id_list:
-        test = hf.NWIS(ids, 'dv', start_date=start_date)
-        try:
-            test.get_data()
-        except hf.exceptions.HydroNoDataError:
-            print('No data for site ID: ' + str(ids))
-        else:
-            print(test.df().head())
+        usgs_url = 'https://nwis.waterdata.usgs.gov/me/nwis/dv?cb_62615=on&format=rdb&site_no={}' \
+                   '&referred_module=sw&period=&begin_date=1838-01-01&end_date=2020-04-09'.format(ids)
 
+        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        req = http.request('GET', usgs_url)
+        text = req.data.decode()
+        time_series = []
+        for line in text.split('\n'):
+            comment_line = re.match(r"^[^#\n]", line)
+            if comment_line:
+                time_series.append(line)
+        df = pd.DataFrame([item.split('\t') for item in time_series])
+    return df
 
 
 usgs_datagrab()
+
