@@ -1,4 +1,4 @@
-from grealm_data_multindex import  grealm_data_multindex
+from grealm_data_multindex import grealm_data_multindex
 from usgs_datagrab import usgs_datagrab
 
 
