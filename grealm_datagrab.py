@@ -1,4 +1,8 @@
-def url_reader():
+def grealm_datagrab():
+    """
+    Accesses the grealm website and requests a summary table of lake information to use in grealm_data_multindex
+    :return: df of summary information from grealm website
+    """
     import urllib3
     import certifi
     import pandas as pd
@@ -12,9 +16,13 @@ def url_reader():
     text_by_line = text.split('\n')
 
     df = pd.DataFrame([i.split() for i in text_by_line[1:]], columns=None)
-    headers = ['Lake_#', 'Lake_Name', 'Latitude', 'Longitude', 'YYYYMMDD',
+    headers = ['site_id', 'site_name', 'Latitude', 'Longitude', 'YYYYMMDD',
                'Hr', 'Min', 'Ht(m)', 'Sigma(m)', 'Updated_on']
     df.columns = headers
     df = df.dropna()
+    df['date'] = df['YYYYMMDD'] + ' ' + df['Hr'] + df['Min']
+    df = df.drop(['YYYYMMDD', 'Hr', 'Min'], axis=1)
+    pd.to_datetime(df['date'], format='%Y%m%d %H%M')
+
     return df
 
