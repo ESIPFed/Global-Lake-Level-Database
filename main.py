@@ -1,12 +1,11 @@
 from url_reader import url_reader
 from data_grab import data_grab
-from hierarchy import  hierarchy
-
+from HydroWeb_grabber import hydro_grab
+#TODO: Add different databases to main
 
 def main():
-    lake_database = url_reader()
-    print(lake_database)
-    hierarchy(lake_database)
+    usgs_db = ()
+    hydroweb_db = hydro_grab()
     # data_grab(lake_database)
 
 
