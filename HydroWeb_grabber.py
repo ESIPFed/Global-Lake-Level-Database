@@ -1,7 +1,7 @@
 # Database scraper for HydroWeb
 # 04/9/20
 # Jake Gearon for ESIP Grant 2020
-
+# TODO: figure out best practice for username / hydroweb account
 def hydro_grab():
     """
     An updating function that scrapes all available data from HydroWeb and returns it as a multi-index dataframe
