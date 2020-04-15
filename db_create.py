@@ -7,4 +7,4 @@ def update_sql(df, name):
 
     db_URI = environ.get('SQLALCHEMY_DATABASE_URI')
     engine = create_engine(db_URI)
-    df.to_sql(name, engine, if_exists='replace')
+    df.to_sql(name, engine, if_exists='replace', chunksize=500, index=False)
