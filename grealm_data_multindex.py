@@ -5,7 +5,7 @@ def grealm_data_multindex():
     :return: multindex dataframe of all vaialbe lakes from grealm website
     """
     from grealm_datagrab import grealm_datagrab
-    import  pandas as pd
+    import pandas as pd
     import urllib3
     import certifi
 
