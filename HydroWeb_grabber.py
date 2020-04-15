@@ -33,4 +33,3 @@ def hydro_grab():
 
 if __name__ == '__main__':
     df = hydro_grab()
-    df.to_csv('SQLtest.csv')
