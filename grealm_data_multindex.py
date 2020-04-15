@@ -4,12 +4,13 @@ def grealm_data_multindex():
 
     :return: multindex dataframe of all vaialbe lakes from grealm website
     """
-    from grealm_datagrab import grealm_datagrab
     import pandas as pd
     import urllib3
     import certifi
 
-    df = grealm_datagrab()
+    headers = ['site_id', 'site_name', 'Latitude', 'Longitude', 'YYYYMMDD',
+               'Hr', 'Min', 'Ht(m)', 'Sigma(m)', 'Updated_on', 'Type']
+    df = pd.read_csv('https://ipad.fas.usda.gov/lakes/images/summary2.txt', headers=headers)
 
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
     df_dict = {}
