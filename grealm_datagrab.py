@@ -15,11 +15,12 @@ def grealm_datagrab():
     text = req.data.decode()
     text_by_line = text.split('\n')
 
-    df = pd.DataFrame([i.split() for i in text_by_line[1:]], columns=None)
     headers = ['site_id', 'site_name', 'Latitude', 'Longitude', 'YYYYMMDD',
-               'Hr', 'Min', 'Ht(m)', 'Sigma(m)', 'Updated_on']
-    df.columns = headers
+               'Hr', 'Min', 'Ht(m)', 'Sigma(m)', 'Updated_on', 'Type']
+    df = pd.DataFrame([i.split() for i in text_by_line[1:]], columns=headers)
+
     df = df.dropna()
+
     df['date'] = df['YYYYMMDD'] + ' ' + df['Hr'] + df['Min']
     df = df.drop(['YYYYMMDD', 'Hr', 'Min'], axis=1)
     pd.to_datetime(df['date'], format='%Y%m%d %H%M')
