@@ -10,7 +10,9 @@ def grealm_data_multindex():
 
     headers = ['site_id', 'site_name', 'Latitude', 'Longitude', 'YYYYMMDD',
                'Hr', 'Min', 'Ht(m)', 'Sigma(m)', 'Updated_on', 'Type']
-    df = pd.read_csv('https://ipad.fas.usda.gov/lakes/images/summary2.txt', headers=headers)
+    df = pd.read_csv('https://ipad.fas.usda.gov/lakes/images/summary2.txt',
+                     delim_whitespace=True, skiprows=1, names=headers
+                     )
 
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
     df_dict = {}
@@ -22,8 +24,8 @@ def grealm_data_multindex():
         text_by_line = text.split('\n')
         df = pd.DataFrame([i.split() for i in text_by_line[50:]], columns=None)
         df_dict.update({name: df})
+    print(len(df_dict))
 
     grealm_database = pd.concat(df_dict)
     print(grealm_database)
     return grealm_database
-
