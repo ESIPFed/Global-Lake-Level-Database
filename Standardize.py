@@ -2,8 +2,8 @@ import pandas as pd
 import re
 from difflib import get_close_matches
 from usgs_datagrab import usgs_datagrab
-from grealm_data_multindex import grealm_data_multindex
-from HydroWeb_grabber import hydro_grab
+from grealm_datagrab import grealm_data_multindex
+from hydroweb_datagrab import hydro_grab
 
 df_usgs = usgs_datagrab()
 df_grealm = grealm_data_multindex()
