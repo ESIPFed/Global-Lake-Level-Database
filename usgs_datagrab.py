@@ -51,19 +51,17 @@ lake_list = 'https://waterdata.usgs.gov/nwis/dv?referred_module=sw&' \
             'begin_date=1838-01-01&end_date=2020-06-16&date_format=YYYY-MM-DD&rdb_compression=file&' \
             'list_of_search_criteria=site_tp_cd%2Crealtime_parameter_selection'
 
+
 def get_usgs_sites():
-    global site_list
-    #todo create dictionary of parameter id and names
+    # todo create dictionary of parameter id and names
     lake_document = requests.get(lake_list)
     lakesoup = BeautifulSoup(lake_document.content, "lxml-xml")
-    site_no_list = [i.text for i in lakesoup.find_all("site_no")]
-    site_list = []
-    [site_list.append(i) for i in site_no_list]
+    site_list = [i.text for i in lakesoup.find_all("site_no")]
     print("{} sites indexed".format(len(site_list)))
     return site_list
 
+
 def update_usgs_database(site_list):
-    global soup
     if isinstance(site_list, list) is True:
         for i in site_list:
             target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \

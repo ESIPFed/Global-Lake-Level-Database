@@ -1,13 +1,13 @@
-from grealm_data_multindex import grealm_data_multindex
+from grealm_datagrab import grealm_datagrab
 from usgs_datagrab import usgs_datagrab
-from HydroWeb_grabber import hydro_grab
+from hydroweb_datagrab import hydro_datagrab
 from db_create import update_sql
 
 
 def main():
-    grealm_lake_database = grealm_data_multindex()
+    grealm_lake_database = grealm_datagrab()
     usgs_lake_database = usgs_datagrab()
-    hydroweb_database = hydro_grab()
+    hydroweb_database = hydro_datagrab()
     # update_sql(grealm_lake_database, "G-REALM")
     # update_sql(usgs_lake_database, "USGS")
     # update_sql(hydroweb_database, "HYDROWEB")
