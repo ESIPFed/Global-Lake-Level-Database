@@ -1,20 +1,7 @@
 # Database scraper for HydroWeb
 # 04/9/20
 # Jake Gearon for ESIP Grant 2020
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-from db_create import update_sql
 # TODO: figure out best practice for username / hydroweb account
-
-
-def update_hydro_meta():
-    target_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
-    df = pd.read_csv(target_url)
-    update_sql(df, "HYDRO_MTADTA")
-
-
-
 def hydro_grab():
     """
     An updating function that scrapes all available data from HydroWeb and returns it as a multi-index dataframe
@@ -40,10 +27,9 @@ def hydro_grab():
                                     'Height above surface of ref (m)', 'Standard deviation from height (m)',
                                     'Area (km2)', 'Volume with respect to volume of first date (km3)', 'Flag'])
             df_dict.update({'Lake '+ name : df})
-            break
     hydroweb_df = pd.concat(df_dict)
     return hydroweb_df
 
+
 if __name__ == '__main__':
     df = hydro_grab()
-    #df = update_hydro_meta()
