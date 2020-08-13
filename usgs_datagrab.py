@@ -1,18 +1,10 @@
-import io
-
-# def usgs_datagrab():
-import lxml
-import xml.etree.cElementTree as cET
-
-"""
-usgs_datagrab accesses the USGS NWIS website and scraps the water surface level above NAVD 88 for available Lakes
-
-:return: pandas multindex dataframe of lake name, USGS site ID, date of data acquisition, and associated water level
-"""
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from ulmo.usgs.nwis.core import get_sites
+import string
+from pandas.io.json._normalize import nested_to_record
 
 begin_date = '1838-01-01'
 now = datetime.now()
@@ -51,17 +43,59 @@ lake_list = 'https://waterdata.usgs.gov/nwis/dv?referred_module=sw&' \
             'begin_date=1838-01-01&end_date=2020-06-16&date_format=YYYY-MM-DD&rdb_compression=file&' \
             'list_of_search_criteria=site_tp_cd%2Crealtime_parameter_selection'
 
-
 def get_usgs_sites():
-    # todo create dictionary of parameter id and names
+    """
+    this function retrives every USGS site that has data from a set of pre-defined elevation parameters:
+
+    :return: list of sites with water level data
+    """
+    #todo create dictionary of parameter id and names
     lake_document = requests.get(lake_list)
     lakesoup = BeautifulSoup(lake_document.content, "lxml-xml")
-    site_list = [i.text for i in lakesoup.find_all("site_no")]
-    print("{} sites indexed".format(len(site_list)))
-    return site_list
+    site_no_list = [i.text for i in lakesoup.find_all("site_no")]
+    print("{} sites indexed".format(len(site_no_list)))
+    return site_no_list
+
+
+def update_usgs_meta(sites):
+    """
+    Updates the meta table of valid sites and associated info
+    :param sites: list or str of usable USGS NWIS Lakes with site information
+    :return: Pandas Dataframe of sites and associated information
+    """
+    #todo make keys of usgs site info to pass to dataframe
+    big_df = pd.DataFrame(columns=['code', 'name', 'network', 'agency', 'county', 'huc', 'site_type',
+                                   'state_code', 'location_latitude', 'location_longitude', 'location_srs',
+                                   'timezone_info_uses_dst', 'timezone_info_dst_tz_abbreviation',
+                                   'timezone_info_dst_tz_offset', 'timezone_info_default_tz_abbreviation',
+                                   'timezone_info_default_tz_offset'])
+    if isinstance(sites, str) is True:
+        site_data = get_sites(sites=sites,service='dv', site_type='LK')
+        d = dict_2_dataframe(site_data)
+        cols = d.keys()
+        # todo append iteratively to sql table??
+        df = pd.DataFrame(d, index=[0])
+        big_df = big_df.append(df)
+        return big_df
+        # df.to_sql()
+    elif isinstance(sites, list) is True:
+        for i in sites:
+            site_data = get_sites(sites=i, service='dv', site_type='LK')
+            d = dict_2_dataframe(site_data)
+            cols = d.keys()
+            #todo append iteratively to sql table??
+            df = pd.DataFrame(d, index=[0])
+            big_df = big_df.append(df)
+        return big_df
+            #df.to_sql()
 
 
 def update_usgs_database(site_list):
+    """
+    Accesses the USGS NWIS website and scrapes the water surface level above NAVD 88 for available Lakes
+    :return: pandas multindex dataframe of lake name, USGS site ID, date of data acquisition, and associated water level
+    """
+    df = pd.DataFrame(columns=['Name', 'Date', 'Water Level [m]'])
     if isinstance(site_list, list) is True:
         for i in site_list:
             target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
@@ -70,13 +104,17 @@ def update_usgs_database(site_list):
                          '72292,72293,72333,99020,72178,72199'.format(i, begin_date, end_date).replace("%2C", ",")
             req = requests.get(target_url)
             soup = BeautifulSoup(req.content, "lxml-xml")
-            df_rows = []
-            df = pd.DataFrame(columns=['Name', 'Date', 'Water Level [m]', 'Qualifiers'])
+            site_name = soup.find("siteName").get_text()
+            site_code = soup.find("siteCode").get_text()
+            crs = soup.find("geogLocation").attrs['srs']
+            lat = soup.find("geogLocation").find("latitude").get_text()
+            long = soup.find("geogLocation").find("longitude").get_text()
             for elem in soup.find_all("value"):
-                name = elem.find("")
-                val = (elem.find("value").get_text())
-                dt = elem.find("value").attrs['dateTime']
-                qls = elem.find("value").attrs['qualifiers']
+                value = (elem.get_text())
+                dateTime = elem.attrs['dateTime']
+                df = df.append({"Name": site_name, "Date": dateTime, "Water Level [m]": value}, ignore_index=True)
+
+
 
     elif isinstance(site_list, str) is True:
         target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
@@ -86,64 +124,29 @@ def update_usgs_database(site_list):
         print("url", target_url)
         req = requests.get(target_url)
         soup = BeautifulSoup(req.content, "lxml-xml")
-        df_rows = []
-        df = pd.DataFrame(columns=['Name','Date', 'Water Level [m]', 'Qualifiers'])
+        #df = pd.DataFrame(columns=['Name', 'Date', 'Water Level [m]'])
+        site_name = soup.find("siteName").get_text()
+        site_code = soup.find("siteCode").get_text()
+        crs = soup.find("geogLocation").attrs['srs']
+        lat = soup.find("geogLocation").find("latitude").get_text()
+        long = soup.find("geogLocation").find("longitude").get_text()
         for elem in soup.find_all("value"):
-            name = elem.find("")
-            val = (elem.find("value").get_text())
-            dt = elem.find("value").attrs['dateTime']
-            qls = elem.find("value").attrs['qualifiers']
+            value = (elem.get_text())
+            dateTime = elem.attrs['dateTime']
+            df = df.append({"Name": site_name, "Date": dateTime, "Water Level [m]": value}, ignore_index=True)
 
     else:
         print("site_list must be a single str or list of str")
-    # try:
-    #     return soup
-    # except Exception as e:
+    return df
 
-    #     print(type(e))
+
+def dict_2_dataframe(d):
+    r = nested_to_record(d.values(), sep="_")
+    return r[0]
+
 
 if __name__ == "__main__":
-    s = get_usgs_sites()[0]
-    update_usgs_database(s)
-
-
-
-
-
-
-
-
-
-    #
-    # f = open(resource_file('target_url'), 'rb').read()
-    #
-    # sites = wml(f).response
-
-    # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-    # req = http.request('GET', target_url)
-    # text = req.data.decode()
-    #
-    # retrieved_date = re.search(r"retrieved:.*$", text, re.M)
-    # print('This data was accessed on: {}'.format(retrieved_date.group()))
-    #
-    # site_ids = re.findall(r"USGS (\d*) (.*)$", text, re.M)
-    # temp_column_names = ['site_id', 'site_name']
-    # name_df = pd.DataFrame(site_ids, columns=temp_column_names)
-    #
-    # data = re.findall(r"(USGS)\t(\d*)\t([\d-]*)\t([\d.]*)", text)
-    #
-    # column_names =['Agency', 'site_id', 'date', 'water_level_ft']
-    # temp_usgs_dataframe = pd.DataFrame(data, columns=column_names)
-    # print(temp_usgs_dataframe)
-    #
-    # usgs_dataframe = temp_usgs_dataframe.merge(name_df)
-    # usgs_dataframe.set_index(['site_name', 'site_id'], inplace=True)
-    # print(len(usgs_dataframe.index.levels[0]))
-    # #print(usgs_dataframe)
-
-    # return usgs_dataframe
-
-
-
-# if __name__ == "__main__":
-#     usgs_datagrab()
+    s = get_usgs_sites()
+    large_df = update_usgs_meta(s)
+    from db_create import update_sql
+    update_sql(large_df, 'USGS_MTADTA')
