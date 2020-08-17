@@ -11,7 +11,7 @@ def update_grealm_meta():
     df = df[~df['Lake ID'].str.contains("Total")]
     # df[['Start_Date', 'End_Date']] = df['Satellite Observation Period'].\
     #     str.split(["[,-]"], expand=True)
-    update_sql(df, 'GREALM MTADTA')
+    update_sql(df, 'GREALM_MTADTA')
 
     # import requests
     # from requests.adapters import HTTPAdapter
