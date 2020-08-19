@@ -1,25 +1,19 @@
 from sqlalchemy import create_engine
 import pymysql
 import pandas as pd
-
-connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                             user='***REMOVED***',
-                             password='***REMOVED***',
-                             db='laketest')
-
-cursor = connection.cursor()
+# TODO: sanitize inputs of apostrophes, these break the MySQL code
+# connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
+#                              user='***REMOVED***',
+#                              password='***REMOVED***',
+#                              db='laketest')
 #
-# engine = create_engine()
+# cursor = connection.cursor()
+#
+# sqlEngine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+#                           '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
 
 
-sqlEngine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
-                          '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
-
-
-# df.to_sql('<table_name>', con=sqlEngine, if_exists='append')
-
-
-def lake_id_creation():
+def lake_id_table_creation():
     sqlEngine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
                               '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
 
@@ -42,36 +36,57 @@ def lake_id_creation():
 def id_no_labeler():
     sqlEngine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
                               '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
+    connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
+                                 user='***REMOVED***',
+                                 password='***REMOVED***',
+                                 db='laketest')
+
+    cursor = connection.cursor()
     id_table = pd.read_sql('Lake_ID', con=sqlEngine)
 
     usgs_label = id_table.loc[id_table['source'] == 'usgs']
     hydroweb_label = id_table.loc[id_table['source'] == 'hydroweb']
     grealm_label = id_table.loc[id_table['source'] == 'grealm']
+    # hotfix for the error in sql code, this should be cleaned before being written to Lake_ID Table
+    grealm_label.loc[1791, 'lake_name'] = "El''ton"
+    usgs_label.loc[928, 'lake_name'] = "LAC VIEUX DESERT NEAR LAND O''LAKES, WI"
 
-
-
-
-id_table = pd.read_sql('Lake_ID', con=sqlEngine)
-
-usgs_label = id_table.loc[id_table['source'] == 'usgs']
-hydroweb_label = id_table.loc[id_table['source'] == 'hydroweb']
-grealm_label = id_table.loc[id_table['source'] == 'grealm']
-#
-sql1_grealm = "ALTER TABLE GREALM_MTADTA ADD id_No INT NOT NULL FIRST;"
-cursor.execute(sql1_grealm)
-for elem in grealm_label['id_No']:
-    cursor.execute(u"INSERT INTO `GREALM_MTADTA`(`id_No`) VALUES (%s)" % elem)
+    # Update GREALM_MTADTA table
+    try:
+        sql_grealm = "ALTER TABLE GREALM_MTADTA ADD id_No INT NOT NULL FIRST;"
+        cursor.execute(sql_grealm)
+        print('Creating id_No Column in GREALM_MTADTA')
+        print('Updating id_No Column in GREALM_MTADTA')
+    except pymysql.err.InternalError:
+        print('Updating id_No Column in GREALM_MTADTA')
+    for num, name in zip(grealm_label['id_No'], grealm_label['lake_name']):
+        cursor.execute(u"UPDATE `GREALM_MTADTA` SET `id_No` = (%s) WHERE `LakeName` = ('%s');" % (num, name))
     connection.commit()
-# # TODO: add underscore to GREALM MTADTA
 
-# lst = [[item] for item in grealm_label['id_No'].tolist()]
-# cursor.executemany(u"INSERT INTO `GREALM_MTADTA`(`id_No`) VALUES (%s)", lst)
-# connection.commit()
+    # Update HYDRO_MTADTA table
+    try:
+        sql_hydro = "ALTER TABLE HYDRO_MTADTA ADD id_No INT NOT NULL FIRST;"
+        cursor.execute(sql_hydro)
+        print('Creating id_No Column in HYDRO_MTADTA')
+        print('Updating id_No Column in HYDRO_MTADTA')
+    except pymysql.err.InternalError:
+        print('Updating id_No Column in HYDRO_MTADTA')
+    for num, name in zip(hydroweb_label['id_No'], hydroweb_label['lake_name']):
+        cursor.execute(u"UPDATE `HYDRO_MTADTA` SET `id_No` = (%s) WHERE `lake` = ('%s');" % (num, name))
+    connection.commit()
 
-# sql1_hydroweb = "ALTER TABLE HYDRO_MTADTA ADD id_No INT NOT NULL;"
-# sql2_hydroweb = "UPDATE HYDRO_MTADTA SET id_No = hydroweb_label['id_No'];"
-#
-# sql1_usgs = "ALTER TABLE USGS_MTADTA ADD id_No INT NULL;"
-# sql2_usgs = "UPDATE USGS_MTADTA SET id_No = usgs_label['id_No'];"
-#
-# # commands = [sql1_grealm, sql2_grealm, sql1_hydroweb, sql2_hydroweb, sql1_usgs, sql2_usgs]
+    # Update USGS_MTADTA table
+    try:
+        sql_usgs = "ALTER TABLE USGS_MTADTA ADD id_No INT NOT NULL FIRST;"
+        cursor.execute(sql_usgs)
+        print('Creating id_No Column in USGS_MTADTA')
+        print('Updating id_No Column in USGS_MTADTA')
+    except pymysql.err.InternalError:
+        print('Updating id_No Column in USGS_MTADTA')
+    for num, name in zip(usgs_label['id_No'], usgs_label['lake_name']):
+        cursor.execute(u"UPDATE `USGS_MTADTA` SET `id_No` = (%s) WHERE `name` = ('%s');" % (num, name))
+    connection.commit()
+
+
+if __name__ == "__main__":
+    id_no_labeler()
