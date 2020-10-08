@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from ulmo.usgs.nwis.core import get_sites
 import string
-from pandas.io.json._normalize import nested_to_record
+from pandas.io.json.normalize import nested_to_record
 
 begin_date = '1838-01-01'
 now = datetime.now()
@@ -148,5 +148,5 @@ def dict_2_dataframe(d):
 if __name__ == "__main__":
     s = get_usgs_sites()
     large_df = update_usgs_meta(s)
-    from db_create import update_sql
-    update_sql(large_df, 'USGS_MTADTA')
+    # from db_create import update_sql
+    # update_sql(large_df, 'USGS_MTADTA')
