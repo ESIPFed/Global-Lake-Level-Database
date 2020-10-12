@@ -17,7 +17,7 @@ def reference_table_mtadta_json():
     cursor = connection.cursor()
 
     # Read in reference table for unique Lake ID and Lake name
-    id_table = pd.read_sql('reference_ID', con=sql_engine, columns=['id_No', 'lake_name', 'source'])
+    id_table = pd.read_sql('reference_ID', con=sql_engine, columns=['id_No', 'lake_name', 'source', 'metadata'])
     print('Reference Table Read')
 
     # Read in grealm summary table and clean dataframe
@@ -28,7 +28,9 @@ def reference_table_mtadta_json():
     grealm_source_df = grealm_source_df.rename(columns={'Name': 'lake_name', 'Lake ID': 'grealm_database_ID'})
 
     # Merge reference and grealm tables while keeping unique lake ID number from db, convert to json dict
-    grealm_id_table = id_table.loc[id_table['source'] == 'grealm']
+    grealm_id_table = id_table[(id_table['source'] == 'grealm')]
+    grealm_id_table = grealm_id_table.loc[grealm_id_table.index.difference(grealm_id_table.dropna().index)]
+    grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
     df_grealm = pd.merge(grealm_source_df, grealm_id_table, on='lake_name')
     df_grealm = df_grealm.set_index('id_No')
     grealm_json = df_grealm.to_json(orient='index')
@@ -41,6 +43,7 @@ def reference_table_mtadta_json():
     hydroweb_df = pd.read_csv(hydroweb_url)
     hydroweb_df = hydroweb_df.rename(columns={'lake': 'lake_name'})
     hydroweb_id_table = id_table.loc[id_table['source'] == 'hydroweb']
+    hydroweb_id_table = hydroweb_id_table.loc[hydroweb_id_table.index.difference(hydroweb_id_table.dropna().index)]
     hydroweb_indexed_df = pd.merge(hydroweb_df, hydroweb_id_table, on='lake_name')
     hydroweb_indexed_df = hydroweb_indexed_df.set_index('id_No')
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')
@@ -51,6 +54,7 @@ def reference_table_mtadta_json():
     # usgs_df = update_usgs_meta(get_usgs_sites())
     # usgs_df = usgs_df.rename(columns={'name': 'lake_name'})
     # usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
+    # usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
     # usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')
     # usgs_df = usgs_df.set_index('id_No')
     # usgs_dict = usgs_df.to_json(orient='index')
