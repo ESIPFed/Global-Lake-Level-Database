@@ -51,17 +51,21 @@ def reference_table_mtadta_json():
 
     print('hydroweb dictionary created')
     # USGS metadata requires use of functions from usgs_datagrab.py, but end result is json dict with unique lake ID
-    # usgs_df = update_usgs_meta(get_usgs_sites())
-    # usgs_df = usgs_df.rename(columns={'name': 'lake_name'})
-    # usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
-    # usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
-    # usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')
-    # usgs_df = usgs_df.set_index('id_No')
-    # usgs_dict = usgs_df.to_json(orient='index')
+    usgs_df = update_usgs_meta(get_usgs_sites())
+    usgs_df = usgs_df.rename(columns={'name': 'lake_name'})
+    usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
+    usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
+    usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')
+    usgs_df = usgs_df.set_index('id_No')
+    usgs_df = usgs_df.drop(['metadata'], axis=1)
+    usgs_dict = usgs_df.to_json(orient='index')
+    usgs_dict = usgs_dict.replace('true', '"true"')
+    usgs_dict = usgs_dict.replace('false', '"false"')
+    usgs_dict = eval(usgs_dict)
 
     # USGS process is slow, while in dev I am accessing usgs_json from saved file
-    with open('/Users/johnfraney/Desktop/usgs_json.json') as f:
-        usgs_dict = json.load(f)
+    # with open('/Users/johnfraney/Desktop/usgs_json.json') as f:
+    #     usgs_dict = json.load(f)
 
     # Execute mysql commands, could possibly merge dicts? have not tried, see below line. 1 loop for each dict
     # merged_dict = {**hydroweb_dict, **usgs_dict, **grealm_dict}
