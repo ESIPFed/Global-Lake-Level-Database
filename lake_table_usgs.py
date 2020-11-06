@@ -39,7 +39,7 @@ missing_sites = []
 for count, site in enumerate(sites, 1):
     #df = pd.DataFrame(columns=['lake_name', 'date', 'water_level'])
         target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
-                     '&statCd=00003,00011,00001&format=json&variable=00062,00065,' \
+                     '&statCd=00003,00011,00001,32400,30800&format=json&variable=00062,00065,' \
                      '30211,62600,62614,62615,62616,62617,62618,72020,' \
                      '72292,72293,72333,99020,72178,72199,99065,30207,' \
                      '72214,72264,72275,72335,72336'.format(site, begin_date,end_date).replace("%2C", ",")
@@ -110,7 +110,7 @@ usgs_source_df = pd.concat(df_ls, ignore_index=True, copy=False)
 usgs_source_df["date"] = pd.to_datetime(usgs_source_df["dateTime"], format='%Y-%m-%d')
 id_labeled_df = pd.merge(usgs_lakes_info, usgs_source_df, on=['lake_name'])
 # usgs_source_df['date'] = usgs_source_df['dateTime'].dt.strftime('%Y-%m-%d')
-# id_labeled_df['date'] = id_labeled_df['date'].dt.strftime('%Y-%m-%d')
+id_labeled_df['date'] = id_labeled_df['date'].dt.strftime('%Y-%m-%d')
 existing_database_df = pd.read_sql('lake_water_level', con=sql_engine)
 existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
 
@@ -120,8 +120,8 @@ sql_ready_df = pd.merge(id_labeled_df, existing_database_df,
                         on=['id_No', 'date'],
                         ).query('_merge=="left_only"').drop('_merge', axis=1)
 
-sql_ready_df = sql_ready_df.drop(['lake_name_y', 'water_level_y'], axis=1)
-sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name', 'water_level_x': 'water_level'})
+sql_ready_df = sql_ready_df.drop(['lake_name_y'], axis=1)
+sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name'})
 sql_ready_df = sql_ready_df.drop_duplicates(subset=['id_No', 'date'])
 # %%
 sql_ready_df.to_sql('lake_water_level',
