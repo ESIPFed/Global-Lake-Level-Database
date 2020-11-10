@@ -46,7 +46,7 @@ def update_usgs_lake_levels():
     sites = get_usgs_sites()
     df_ls = []
     missing_sites = []
-    printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
+    printProgressBar(0, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
     for count, site in enumerate(sites, 1):
             target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
                          '&statCd=00003,00011,00001,32400,30800,30600&format=json&variable=00062,00065,' \
@@ -73,7 +73,7 @@ def update_usgs_lake_levels():
             except Exception as err:
                 print(f'Other error occurred: {err}')
 
-            printProgressBar(0, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
+            printProgressBar(count+1, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
 
     # %%
     usgs_source_df = pd.concat(df_ls, ignore_index=True, copy=False)
@@ -178,7 +178,7 @@ def update_usgs_meta():
     # TODO Document what each parameter means or have a link to USGS website explaining
     sites = get_usgs_sites()
     print("{} sites indexed".format(len(sites)))
-    printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
+    printProgressBar(0, len(sites), prefix='USGS Metadata Update:', suffix='Complete', length=50)
     big_df = []
     for count, site in enumerate(sites, 1):
         lake_m_list = "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites={}&" \
