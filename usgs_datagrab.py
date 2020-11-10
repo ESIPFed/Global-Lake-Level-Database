@@ -72,7 +72,7 @@ def get_usgs_sites():
     return df["site_no"].values
 
 
-def update_usgs_meta(url=None):
+def update_usgs_meta():
     """
     Updates the meta table of valid sites and associated info
     :return: Pandas Dataframe of sites and associated information
@@ -85,8 +85,6 @@ def update_usgs_meta(url=None):
                       "siteOutput=expanded&siteType=LK&siteStatus=all&hasDataTypeCd=iv,dv".format(site)
         df2 = pd.read_csv(lake_m_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
         big_df.append(df2)
-        print("*******{}*******".format(site))
-        print(df2.head())
         print("{}/{} sites indexed".format(count, sites))
     return pd.concat(big_df)
 

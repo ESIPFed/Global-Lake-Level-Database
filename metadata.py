@@ -51,7 +51,7 @@ def reference_table_mtadta_json():
 
     print('hydroweb dictionary created')
     # USGS metadata requires use of functions from usgs_datagrab.py, but end result is json dict with unique lake ID
-    usgs_df = update_usgs_meta(get_usgs_sites())
+    usgs_df = update_usgs_meta()
     usgs_df = usgs_df.rename(columns={'name': 'lake_name'})
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
@@ -62,6 +62,7 @@ def reference_table_mtadta_json():
     usgs_dict = usgs_dict.replace('true', '"true"')
     usgs_dict = usgs_dict.replace('false', '"false"')
     usgs_dict = eval(usgs_dict)
+    print('USGS dictionary created')
 
     # USGS process is slow, while in dev I am accessing usgs_json from saved file
     # with open('/Users/johnfraney/Desktop/usgs_json.json') as f:

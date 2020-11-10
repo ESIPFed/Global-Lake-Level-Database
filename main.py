@@ -3,6 +3,7 @@ import fill_reference_table as reference_tbls
 from metadata import reference_table_mtadta_json
 from lake_table_grealm import update_grealm_lake_levels
 from lake_table_hydroweb import update_hydroweb_lake_levels
+from lake_table_usgs import update_usgs_lake_levels
 
 def main():
     create_tables()
@@ -20,6 +21,8 @@ def main():
                 print('Grealm lake water levels updated')
                 update_hydroweb_lake_levels()
                 print('Hydroweb lake levels updated')
+                update_usgs_lake_levels()
+                print('USGS lake levels updated')
                 print('Process Completed')
 
             elif update_input == 'm':
