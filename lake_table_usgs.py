@@ -73,7 +73,7 @@ def update_usgs_lake_levels():
             except Exception as err:
                 print(f'Other error occurred: {err}')
 
-            printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
+            printProgressBar(0, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
 
     # %%
     usgs_source_df = pd.concat(df_ls, ignore_index=True, copy=False)
@@ -185,5 +185,5 @@ def update_usgs_meta():
                       "siteOutput=expanded&siteType=LK&siteStatus=all&hasDataTypeCd=iv,dv".format(site)
         df2 = pd.read_csv(lake_m_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
         big_df.append(df2)
-        printProgressBar(count + 1, len(sites), prefix = 'Progress:', suffix = 'Complete', length = 50)
+        printProgressBar(count + 1, len(sites), prefix = 'USGS Metadata Update:', suffix = 'Complete', length = 50)
     return pd.concat(big_df)

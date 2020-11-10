@@ -3,7 +3,6 @@ def reference_table_mtadta_json():
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
-
     from lake_table_usgs import update_usgs_meta
     import json
 
@@ -44,6 +43,7 @@ def reference_table_mtadta_json():
     hydroweb_df = hydroweb_df.rename(columns={'lake': 'lake_name'})
     hydroweb_id_table = id_table.loc[id_table['source'] == 'hydroweb']
     hydroweb_id_table = hydroweb_id_table.loc[hydroweb_id_table.index.difference(hydroweb_id_table.dropna().index)]
+    hydroweb_id_table = hydroweb_id_table.drop(['metadata'], axis=1)
     hydroweb_indexed_df = pd.merge(hydroweb_df, hydroweb_id_table, on='lake_name')
     hydroweb_indexed_df = hydroweb_indexed_df.set_index('id_No')
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')

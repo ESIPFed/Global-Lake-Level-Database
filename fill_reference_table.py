@@ -22,14 +22,14 @@ def replace_reference_id_table():
         hydroweb_df = pd.read_csv(hydroweb_url)
         hydroweb_df = hydroweb_df.rename(columns={'lake': 'lake_name'})
         hydroweb_df = hydroweb_df.filter(['lake_name'])
-        hydroweb_df['source'] = 'hydroweb'
+        hydroweb_df.loc[:, 'source'] = 'hydroweb'
 
         # Get lake names from usgs, drop metadata, add source info
         print('--------Gathering USGS lake information--------')
-        usgs_df = update_usgs_meta(get_usgs_sites())
+        usgs_df = update_usgs_meta()
         usgs_df = usgs_df.rename(columns={'name': 'lake_name'})
         usgs_df = usgs_df.filter(['lake_name'])
-        usgs_df['source'] = 'usgs'
+        usgs_df.loc[:, 'source'] = 'usgs'
 
         # Get lake names from grealm, drop metadata, add source info
         print('--------Gathering G-Realm lake information--------')
@@ -39,7 +39,7 @@ def replace_reference_id_table():
         grealm_df = grealm_df[~grealm_df['Lake ID'].str.contains("Total")]
         grealm_df = grealm_df.rename(columns={'Name': 'lake_name'})
         grealm_df = grealm_df.filter(['lake_name'])
-        grealm_df['source'] = 'grealm'
+        grealm_df.loc[:, 'source'] = 'grealm'
 
         lake_reference_df = pd.concat([hydroweb_df, usgs_df, grealm_df], ignore_index=True)
 
@@ -76,7 +76,7 @@ def update_reference_id_table():
     # Merge reference and grealm tables while keeping unique lake ID number from db, convert to json dict
     grealm_existing_lakes_table = reference_table.loc[reference_table['source'] == 'grealm']
     grealm_ready_df = grealm_source_df[~grealm_source_df.lake_name.isin(grealm_existing_lakes_table['lake_name'])]
-    grealm_ready_df['source'] = 'grealm'
+    grealm_ready_df.loc[:, 'source'] = 'grealm'
 
     # Grab hydroweb source data
     hydroweb_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
@@ -86,16 +86,16 @@ def update_reference_id_table():
 
     hydroweb_existing_lake_df = reference_table.loc[reference_table['source'] == 'hydroweb']
     hydroweb_ready_df = hydroweb_source_df[~hydroweb_source_df.lake_name.isin(hydroweb_existing_lake_df['lake_name'])]
-    hydroweb_ready_df['source'] = 'hydroweb'
+    hydroweb_ready_df.loc[:, 'source'] = 'hydroweb'
 
     # Grab usgs source data
-    usgs_source_df = update_usgs_meta(get_usgs_sites())
-    usgs_source_df = usgs_source_df.rename(columns={'name': 'lake_name'})
+    usgs_source_df = update_usgs_meta()
+    usgs_source_df = usgs_source_df.rename(columns={'station_nm': 'lake_name'})
     usgs_source_df = usgs_source_df.filter(['lake_name'])
 
     usgs_existing_lake_df = reference_table.loc[reference_table['source'] == 'usgs']
     usgs_ready_df = usgs_source_df[~usgs_source_df.lake_name.isin(usgs_existing_lake_df['lake_name'])]
-    usgs_ready_df['source'] = 'usgs'
+    usgs_ready_df.loc[:, 'source'] = 'usgs'
 
     sql_ready_df = pd.concat([grealm_ready_df, hydroweb_ready_df, usgs_ready_df], ignore_index=True)
 
