@@ -1,5 +1,17 @@
+# %% Section: MetaInfo
+__author__ = ['John Franey', 'Jake Gearon']
+__credits__ = ['John Franey', 'Jake Gearon']
+
+__version__ = '1.0.0'
+__maintainer__ = 'John Franey'
+__email__ = 'franeyjohn96@gmail.com'
+__status__ = 'Development'
+#%% packages
 def update_usgs_lake_levels():
-    from usgs_datagrab import get_usgs_sites
+    """
+    writes in usgs lake level data to existing database, appending new data dynamically
+    :return: None
+    """
     from datetime import datetime
     import requests
     from requests.exceptions import HTTPError
@@ -8,18 +20,6 @@ def update_usgs_lake_levels():
     from sqlalchemy import create_engine
     import pymysql
     from utiils import printProgressBar
-# %% Section: MetaInfo
-    __author__ = ['John Franey', 'Jake Gearon']
-    __credits__ = ['John Franey', 'Jake Gearon']
-
-    __version__ = '1.0.0'
-    __maintainer__ = 'John Franey'
-    __email__ = 'franeyjohn96@gmail.com'
-    __status__ = 'Development'
-
-
-
-    pr_start = process_time()
 
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
                                    '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
@@ -53,8 +53,6 @@ def update_usgs_lake_levels():
                          '30211,62600,62614,62615,62616,62617,62618,72020,' \
                          '72292,72293,72333,99020,72178,72199,99065,30207,' \
                          '72214,72264,72275,72335,72336'.format(site, begin_date,end_date).replace("%2C", ",")
-            #print("site number: {}".format(site))
-            t1_start = process_time()
             try:
                 response = requests.get(target_url)
                 response.raise_for_status()
@@ -72,26 +70,15 @@ def update_usgs_lake_levels():
                 print(e)
                 print('site data for {} not found, check parameters!'.format(site))
                 missing_sites.append(site)
-                print('*************************************')
             except Exception as err:
                 print(f'Other error occurred: {err}')
 
-            #print("Lake {}/{}".format(count, len(sites)))
             printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
 
-            t1_stop = process_time()
-            print("Elapsed time during the whole program in seconds:",
-                  t1_stop - t1_start)
-
-
-    pr_stop = process_time()
-    print("Elapsed time during the entire process in seconds:",
-          pr_stop - pr_start)
     # %%
     usgs_source_df = pd.concat(df_ls, ignore_index=True, copy=False)
     usgs_source_df["date"] = pd.to_datetime(usgs_source_df["dateTime"], format='%Y-%m-%d')
     id_labeled_df = pd.merge(usgs_lakes_info, usgs_source_df, on=['lake_name'])
-    # usgs_source_df['date'] = usgs_source_df['dateTime'].dt.strftime('%Y-%m-%d')
     id_labeled_df['date'] = id_labeled_df['date'].dt.strftime('%Y-%m-%d')
     id_labeled_df = id_labeled_df.drop(['dateTime'], axis=1)
     id_labeled_df = id_labeled_df.rename(columns={'value': 'water_level'})
@@ -123,3 +110,80 @@ def update_usgs_lake_levels():
             print(site)
 
     connection.close()
+#%% usgs funcs
+def get_usgs_sites():
+    """
+    this function retrives every USGS site that has data from a set of pre-defined elevation parameters:
+
+    :return: list of sites with water level data
+    """
+    from datetime import datetime
+    import pandas as pd
+    begin_date = '1838-01-01'
+    now = datetime.now()
+    end_date = now.strftime('%Y-%m-%d')
+    # TODO Document what each parameter means or have a link to USGS website explaining
+    #todo create dictionary of parameter id and names
+    lake_list = 'https://waterdata.usgs.gov/nwis/dv?referred_module=sw&' \
+                'site_tp_cd=LK&index_pmcode_72020=1&' \
+                'index_pmcode_99020=1&' \
+                'index_pmcode_30211=1&' \
+                'index_pmcode_00062=1&' \
+                'index_pmcode_99065=1&' \
+                'index_pmcode_30207=1&' \
+                'index_pmcode_00065=1&' \
+                'index_pmcode_62600=1&' \
+                'index_pmcode_72292=1&' \
+                'index_pmcode_72293=1&' \
+                'index_pmcode_62615=1&' \
+                'index_pmcode_62614=1&' \
+                'index_pmcode_62616=1&' \
+                'index_pmcode_62617=1&' \
+                'index_pmcode_72214=1&' \
+                'index_pmcode_72264=1&' \
+                'index_pmcode_72275=1&' \
+                'index_pmcode_72333=1&' \
+                'index_pmcode_72335=1&' \
+                'index_pmcode_72336=1&' \
+                'index_pmcode_72199=1&' \
+                'index_pmcode_72178=1&' \
+                'group_key=NONE&format=sitefile_output&sitefile_output_format=rdb&state_cd=al&state_cd=ak&state_cd=aq' \
+                '&state_cd=az&state_cd=ar&state_cd=bc&state_cd=ca&state_cd=eq&state_cd=co&state_cd=ct&state_cd=de' \
+                '&state_cd=dc&state_cd=fl&state_cd=ga&state_cd=gu&state_cd=hi&state_cd=id&state_cd=il&state_cd=in' \
+                '&state_cd=ia&state_cd=jq&' \
+                'state_cd=ks&state_cd=ky&state_cd=la&state_cd=me&state_cd=md&state_cd=ma&state_cd=mi&state_cd=mq' \
+                '&state_cd=mn&state_cd=ms&state_cd=mo&state_cd=mt&state_cd=ne&' \
+                'state_cd=nv&state_cd=nh&state_cd=nj&state_cd=nm&state_cd=ny&state_cd=nc&state_cd=nd&state_cd=mp' \
+                '&state_cd=oh&state_cd=ok&' \
+                'state_cd=or&state_cd=pa&state_cd=pr&state_cd=ri&state_cd=yq&state_cd=sc&state_cd=sd&state_cd=sq' \
+                '&state_cd=tn&state_cd=tx' \
+                '&state_cd=tq&state_cd=bq&state_cd=iq&state_cd=ut&state_cd=vt&state_cd=vi&state_cd=va&state_cd=wq' \
+                '&state_cd=wa&state_cd=wv&state_cd=wi&state_cd=wy&' \
+                'site_tp_cd=LK&' \
+                'column_name=site_no&column_name=station_nm&range_selection=date_range&' \
+                'begin_date={}&end_date={}&date_format=YYYY-MM-DD&rdb_compression=file&' \
+                'list_of_search_criteria=site_tp_cd%2Crealtime_parameter_selection'.format(begin_date, end_date)
+    df = pd.read_csv(lake_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
+    print("{} sites indexed".format(len(df["site_no"])))
+    return df["site_no"].values
+
+
+def update_usgs_meta():
+    """
+    Updates the meta table of valid sites and associated info
+    :return: Pandas Dataframe of sites and associated information
+    """
+    from utiils import printProgressBar
+    import pandas as pd
+    # TODO Document what each parameter means or have a link to USGS website explaining
+    sites = get_usgs_sites()
+    print("{} sites indexed".format(len(sites)))
+    printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
+    big_df = []
+    for count, site in enumerate(sites, 1):
+        lake_m_list = "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites={}&" \
+                      "siteOutput=expanded&siteType=LK&siteStatus=all&hasDataTypeCd=iv,dv".format(site)
+        df2 = pd.read_csv(lake_m_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
+        big_df.append(df2)
+        printProgressBar(count + 1, len(sites), prefix = 'Progress:', suffix = 'Complete', length = 50)
+    return pd.concat(big_df)
