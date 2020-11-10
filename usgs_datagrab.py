@@ -77,15 +77,18 @@ def update_usgs_meta():
     Updates the meta table of valid sites and associated info
     :return: Pandas Dataframe of sites and associated information
     """
+    from utiils import printProgressBar
+
     sites = get_usgs_sites()
     print("{} sites indexed".format(len(sites)))
+    printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
     big_df = []
     for count, site in enumerate(sites, 1):
         lake_m_list = "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites={}&" \
                       "siteOutput=expanded&siteType=LK&siteStatus=all&hasDataTypeCd=iv,dv".format(site)
         df2 = pd.read_csv(lake_m_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
         big_df.append(df2)
-        print("{}/{} sites indexed".format(count, sites))
+        printProgressBar(count + 1, len(sites), prefix = 'Progress:', suffix = 'Complete', length = 50)
     return pd.concat(big_df)
 
 

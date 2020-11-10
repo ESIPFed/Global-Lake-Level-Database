@@ -7,6 +7,7 @@ def update_usgs_lake_levels():
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
+    from utiils import printProgressBar
 # %% Section: MetaInfo
     __author__ = ['John Franey', 'Jake Gearon']
     __credits__ = ['John Franey', 'Jake Gearon']
@@ -45,6 +46,7 @@ def update_usgs_lake_levels():
     sites = get_usgs_sites()
     df_ls = []
     missing_sites = []
+    printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
     for count, site in enumerate(sites, 1):
             target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
                          '&statCd=00003,00011,00001,32400,30800,30600&format=json&variable=00062,00065,' \
@@ -75,6 +77,7 @@ def update_usgs_lake_levels():
                 print(f'Other error occurred: {err}')
 
             print("Lake {}/{}".format(count, len(sites)))
+            printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
 
             t1_stop = process_time()
             print("Elapsed time during the whole program in seconds:",
