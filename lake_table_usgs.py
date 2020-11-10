@@ -53,7 +53,7 @@ def update_usgs_lake_levels():
                          '30211,62600,62614,62615,62616,62617,62618,72020,' \
                          '72292,72293,72333,99020,72178,72199,99065,30207,' \
                          '72214,72264,72275,72335,72336'.format(site, begin_date,end_date).replace("%2C", ",")
-            print("site number: {}".format(site))
+            #print("site number: {}".format(site))
             t1_start = process_time()
             try:
                 response = requests.get(target_url)
@@ -76,7 +76,7 @@ def update_usgs_lake_levels():
             except Exception as err:
                 print(f'Other error occurred: {err}')
 
-            print("Lake {}/{}".format(count, len(sites)))
+            #print("Lake {}/{}".format(count, len(sites)))
             printProgressBar(0, len(sites), prefix='Progress:', suffix='Complete', length=50)
 
             t1_stop = process_time()
