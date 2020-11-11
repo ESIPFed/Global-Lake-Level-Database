@@ -70,28 +70,27 @@ def reference_table_mtadta_json(usgs_tbl):
 
     # Execute mysql commands, could possibly merge dicts? have not tried, see below line. 1 loop for each dict
     # merged_dict = {**hydroweb_dict, **usgs_dict, **grealm_dict}
-    print('----------UPDATING GREALM METADATA----------')
+    from utiils import printProgressBar
+    printProgressBar(0, len(grealm_dict.items()), prefix='G-REALM:', suffix='Complete', length=50)
     sql_command = u"UPDATE `reference_ID` SET `metadata` = (%s) WHERE `id_No` = (%s);"
-    for key, value in grealm_dict.items():
-        print(key, value['lake_name'])      # Just to keep track of progress in console view
+    for count, key, value in enumerate(grealm_dict.items(), 1):
         cursor.execute(sql_command, (json.dumps(value), key))
+        printProgressBar(count + 1, len(grealm_dict.items()), prefix='GREALM-USDA:', suffix='Complete', length=50)
     connection.commit()
 
-    print('----------UPDATING HYDROWEB METADATA----------')
-    for key, value in hydroweb_dict.items():
-        print(key, value['lake_name'])      # Just to keep track of progress in console view
+    printProgressBar(0, len(hydroweb_dict.items()), prefix='HydroWeb:', suffix='Complete', length=50)
+    for count, key, value in enumerate(hydroweb_dict.items(), 1):
         cursor.execute(sql_command, (json.dumps(value), key))
+        printProgressBar(count + 1, len(hydroweb_dict.items()), prefix='HydroWeb:', suffix='Complete', length=50)
     connection.commit()
 
-    print('----------UPDATING USGS METADATA----------')
-    for key, value in usgs_dict.items():
-        print(key, value['lake_name'])      # Just to keep track of progress in console view
+    printProgressBar(0, len(usgs_dict.items()), prefix='USGS-NWIS:', suffix='Complete', length=50)
+    for count, key, value in enumerate(usgs_dict.items(), 1):
         cursor.execute(sql_command, (json.dumps(value), key))
+        printProgressBar(count + 1, len(usgs_dict.items()), prefix='USGS-NWIS:', suffix='Complete', length=50)
     connection.commit()
     connection.close()
 
-    print('task complete')
+    print('Task Complete!')
 
-if __name__ == '__main__':
-    reference_table_mtadta_json()
 
