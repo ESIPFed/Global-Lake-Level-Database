@@ -1,5 +1,4 @@
 def update_grealm_lake_levels():
-
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
