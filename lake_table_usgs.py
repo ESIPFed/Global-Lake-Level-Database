@@ -164,7 +164,6 @@ def get_usgs_sites():
                 'begin_date={}&end_date={}&date_format=YYYY-MM-DD&rdb_compression=file&' \
                 'list_of_search_criteria=site_tp_cd%2Crealtime_parameter_selection'.format(begin_date, end_date)
     df = pd.read_csv(lake_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
-    print("{} sites indexed".format(len(df["site_no"])))
     return df["site_no"].values
 
 
@@ -177,7 +176,7 @@ def update_usgs_meta():
     import pandas as pd
     # TODO Document what each parameter means or have a link to USGS website explaining
     sites = get_usgs_sites()
-    print("{} sites indexed".format(len(sites)))
+    # print("{} sites indexed".format(len(sites)))
     printProgressBar(0, len(sites), prefix='USGS Metadata Update:', suffix='Complete', length=50)
     big_df = []
     for count, site in enumerate(sites, 1):

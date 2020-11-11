@@ -1,5 +1,4 @@
-def reference_table_mtadta_json():
-
+def reference_table_mtadta_json(usgs_tbl):
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
@@ -51,7 +50,7 @@ def reference_table_mtadta_json():
 
     print('hydroweb dictionary created')
     # USGS metadata requires use of functions from lake_table_usgs.py, but end result is json dict with unique lake ID
-    usgs_df = update_usgs_meta()
+    usgs_df = usgs_tbl
     usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
@@ -61,6 +60,7 @@ def reference_table_mtadta_json():
     usgs_dict = usgs_df.to_json(orient='index')
     usgs_dict = usgs_dict.replace('true', '"true"')
     usgs_dict = usgs_dict.replace('false', '"false"')
+    usgs_dict = usgs_dict.replace('null', '"null"')
     usgs_dict = eval(usgs_dict)
     print('USGS dictionary created')
 

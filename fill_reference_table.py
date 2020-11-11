@@ -73,10 +73,12 @@ def update_reference_id_table():
     grealm_source_df = grealm_source_df.rename(columns={'Name': 'lake_name'})
     grealm_source_df = grealm_source_df.filter(['lake_name'])
 
+
     # Merge reference and grealm tables while keeping unique lake ID number from db, convert to json dict
     grealm_existing_lakes_table = reference_table.loc[reference_table['source'] == 'grealm']
     grealm_ready_df = grealm_source_df[~grealm_source_df.lake_name.isin(grealm_existing_lakes_table['lake_name'])]
     grealm_ready_df.insert(0, 'source', 'grealm')
+    print("GREALM-USDA Metadata Updated")
 
     # Grab hydroweb source data
     hydroweb_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
@@ -87,15 +89,17 @@ def update_reference_id_table():
     hydroweb_existing_lake_df = reference_table.loc[reference_table['source'] == 'hydroweb']
     hydroweb_ready_df = hydroweb_source_df[~hydroweb_source_df.lake_name.isin(hydroweb_existing_lake_df['lake_name'])]
     hydroweb_ready_df.insert(0, 'source', 'hydroweb')
+    print("HydroWeb Metadata Updated")
 
     # Grab usgs source data
-    usgs_source_df = update_usgs_meta()
-    usgs_source_df = usgs_source_df.rename(columns={'station_nm': 'lake_name'})
+    usgs_source_df_raw = update_usgs_meta()
+    usgs_source_df = usgs_source_df_raw.rename(columns={'station_nm': 'lake_name'})
     usgs_source_df = usgs_source_df.filter(['lake_name'])
 
     usgs_existing_lake_df = reference_table.loc[reference_table['source'] == 'usgs']
     usgs_ready_df = usgs_source_df[~usgs_source_df.lake_name.isin(usgs_existing_lake_df['lake_name'])]
     usgs_ready_df.insert(0, 'source', 'usgs')
+    print("USGS-NWIS Metadata Updated")
 
     sql_ready_df = pd.concat([grealm_ready_df, hydroweb_ready_df, usgs_ready_df], ignore_index=True)
 
@@ -104,3 +108,4 @@ def update_reference_id_table():
         cursor.execute(sql_command, (name, source))
     connection.commit()
     connection.close()
+    return usgs_source_df_raw
