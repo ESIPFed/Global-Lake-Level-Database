@@ -105,10 +105,10 @@ def update_usgs_lake_levels():
         print('All sites processed')
     else:
         print('Missing {} out of {} sites.'.format(len(missing_sites), len(sites)))
-        print('Missing Site IDs:')
-        for site in missing_sites:
-            print(site)
-
+        # print('Missing Site IDs:')
+        # for site in missing_sites:
+        #     print(site)
+    print("USGS-NWIS Lake Levels Updated")
     connection.close()
 #%% usgs funcs
 def get_usgs_sites():

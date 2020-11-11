@@ -5,6 +5,7 @@ def update_hydroweb_lake_levels():
     from io import BytesIO
     from zipfile import ZipFile
     import urllib.request
+    from utiils import printProgressBar
     # %% Section: MetaInfo
     __author__ = 'John Franey'
     __credits__ = ['John Franey', 'Jake Gearon']
@@ -35,8 +36,13 @@ def update_hydroweb_lake_levels():
     ls_df = []
     url = "http://hydroweb.theia-land.fr/hydroweb/authdownload?products=lakes&user=jake.gearon@gmail.com&pwd=vHs98NdXe9BxWNyok*Pp&format=txt"
     target_url = urllib.request.urlopen(url)
+
+
     with ZipFile(BytesIO(target_url.read())) as my_zip_file:
-        for contained_file in my_zip_file.namelist():
+        printProgressBar(0, len(my_zip_file.namelist()), prefix='HydroWeb Lake Data Update:',
+                         suffix='Complete',
+                         length=50)
+        for count, contained_file in enumerate(my_zip_file.namelist(), 1):
             name = contained_file[11:-4]
             df = pd.read_csv(my_zip_file.open(contained_file),
                              sep=';',
@@ -52,6 +58,9 @@ def update_hydroweb_lake_levels():
             df['lake_name'] = name.capitalize()
             # unique_id = hydroweb_lakes_info.loc[hydroweb_lakes_info['lake_name'] == name, 'id_No']
             ls_df.append(df)
+            printProgressBar(count + 1, len(my_zip_file.namelist()), prefix='HydroWeb Lake Data Update:',
+                             suffix='Complete',
+                             length=50)
     raw_lake_level_df = pd.concat(ls_df, ignore_index=True, copy=False)
 
     # %% Section: filter source df
@@ -79,5 +88,5 @@ def update_hydroweb_lake_levels():
                         if_exists='append',
                         chunksize=2000
                         )
-
+    print("HydroWeb Lake Levels Updated")
     connection.close()

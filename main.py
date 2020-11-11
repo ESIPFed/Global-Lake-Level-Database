@@ -8,7 +8,7 @@ from lake_table_usgs import update_usgs_lake_levels
 def main():
     create_tables()
     while True:
-        user_input = str(input("[u]pdate or [r]eplace data?]: ").lower())
+        user_input = str(input("[u]pdate or [r]eplace data?: ").lower())
         if user_input == 'r':
             reference_tbls.replace_reference_id_table()
             print('Reference table deleted and replaced\nProcess Completed')
@@ -18,11 +18,8 @@ def main():
 
             if update_input == 'l':
                 update_grealm_lake_levels()
-                print('Grealm lake water levels updated')
                 update_hydroweb_lake_levels()
-                print('Hydroweb lake levels updated')
                 update_usgs_lake_levels()
-                print('USGS lake levels updated')
                 print('Process Completed')
 
             elif update_input == 'm':
