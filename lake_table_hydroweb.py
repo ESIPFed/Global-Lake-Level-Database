@@ -17,14 +17,6 @@ def update_hydroweb_lake_levels():
     # %%
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
-    connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                                 user='***REMOVED***',
-                                 password='***REMOVED***',
-                                 db='laketest',
-                                 connect_timeout=100000,
-                                 )
-    cursor = connection.cursor()
-
     hydroweb_sql = u"SELECT `id_No`," \
                    u"`lake_name` " \
                    u" FROM reference_ID WHERE `source` = 'hydroweb'"
@@ -89,4 +81,3 @@ def update_hydroweb_lake_levels():
                         chunksize=2000
                         )
     print("HydroWeb Lake Levels Updated")
-    connection.close()

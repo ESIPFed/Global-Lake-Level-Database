@@ -32,7 +32,7 @@ def update_grealm_lake_levels():
     from utiils import printProgressBar
     printProgressBar(0, len(grealm_lakes_info['grealm_ID']), prefix='GREALM-USDA Lake Data Update:', suffix='Complete',
                      length=50)
-    for count, grealm_id, u_id, name in enumerate(zip(grealm_lakes_info['grealm_ID'],
+    for count, (grealm_id, u_id, name) in enumerate(zip(grealm_lakes_info['grealm_ID'],
                                      grealm_lakes_info['id_No'],
                                      grealm_lakes_info['lake_name']), 1):
 
@@ -70,7 +70,7 @@ def update_grealm_lake_levels():
                          length=50)
     raw_lake_level_df = pd.concat(ls_df, ignore_index=True, copy=False)
     print('There were {} lake(s) where no GREALM-USDA information could be located'.format(len(missing_data)))
-
+    print('Verifying data against database...this may take some time...')
     existing_database_df = pd.read_sql('lake_water_level', con=sql_engine)
     existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
 

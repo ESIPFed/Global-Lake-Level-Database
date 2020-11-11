@@ -17,8 +17,8 @@ def main():
             update_input = str(input('Update [l]ake levels or [m]etadata?: ')).lower()
 
             if update_input == 'l':
-                update_grealm_lake_levels()
-                update_hydroweb_lake_levels()
+                #update_grealm_lake_levels()
+                #update_hydroweb_lake_levels()
                 update_usgs_lake_levels()
                 print('Process Completed')
 
