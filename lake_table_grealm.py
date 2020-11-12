@@ -3,7 +3,6 @@ def update_grealm_lake_levels():
     from sqlalchemy import create_engine
     import pymysql
 
-
     # Create database connection engines and cursor
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()

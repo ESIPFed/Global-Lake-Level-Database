@@ -7,6 +7,7 @@ __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
 #%% packages
+# todo: add source column to lake_water_level so when we pd.read_sql we can filter more quickly.
 def update_usgs_lake_levels():
     """
     writes in usgs lake level data to existing database, appending new data dynamically
@@ -22,7 +23,7 @@ def update_usgs_lake_levels():
     from utiils import printProgressBar
 
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
-                                   '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
+                               '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
     connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
                                  user='***REMOVED***',
                                  password='***REMOVED***',
@@ -48,32 +49,32 @@ def update_usgs_lake_levels():
     missing_sites = []
     printProgressBar(0, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
     for count, site in enumerate(sites, 1):
-            target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
-                         '&statCd=00003,00011,00001,32400,30800,30600&format=json&variable=00062,00065,' \
-                         '30211,62600,62614,62615,62616,62617,62618,72020,' \
-                         '72292,72293,72333,99020,72178,72199,99065,30207,' \
-                         '72214,72264,72275,72335,72336'.format(site, begin_date,end_date).replace("%2C", ",")
-            try:
-                response = requests.get(target_url)
-                response.raise_for_status()
-                # access JSOn content
-                jsonResponse = response.json()
-                site_name = jsonResponse["value"]["timeSeries"][0]['sourceInfo']['siteName']
-                df = pd.DataFrame.from_dict(jsonResponse["value"]['timeSeries'][0]["values"][0]['value'],
-                                            orient="columns").drop('qualifiers', axis=1)
-                df["lake_name"] = site_name
-                df_ls.append(df)
+        target_url = 'http://waterservices.usgs.gov/nwis/dv/?sites={}&siteType=LK&startDT={}&endDT={}' \
+                     '&statCd=00003,00011,00001,32400,30800,30600&format=json&variable=00062,00065,' \
+                     '30211,62600,62614,62615,62616,62617,62618,72020,' \
+                     '72292,72293,72333,99020,72178,72199,99065,30207,' \
+                     '72214,72264,72275,72335,72336'.format(site, begin_date,end_date).replace("%2C", ",")
+        try:
+            response = requests.get(target_url)
+            response.raise_for_status()
+            # access JSOn content
+            jsonResponse = response.json()
+            site_name = jsonResponse["value"]["timeSeries"][0]['sourceInfo']['siteName']
+            df = pd.DataFrame.from_dict(jsonResponse["value"]['timeSeries'][0]["values"][0]['value'],
+                                        orient="columns").drop('qualifiers', axis=1)
+            df["lake_name"] = site_name
+            df_ls.append(df)
 
-            except HTTPError as http_err:
-                print(f'HTTP error occurred: {http_err}')
-            except IndexError as e:
-                print(e)
-                print('site data for {} not found, check parameters!'.format(site))
-                missing_sites.append(site)
-            except Exception as err:
-                print(f'Other error occurred: {err}')
+        except HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+        except IndexError as e:
+            print(e)
+            print('site data for {} not found, check parameters!'.format(site))
+            missing_sites.append(site)
+        except Exception as err:
+            print(f'Other error occurred: {err}')
 
-            printProgressBar(count+1, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
+        printProgressBar(count+1, len(sites), prefix='USGS Lake Data Update:', suffix='Complete', length=50)
 
     # %%
     usgs_source_df = pd.concat(df_ls, ignore_index=True, copy=False)
@@ -111,6 +112,7 @@ def update_usgs_lake_levels():
     print("USGS-NWIS Lake Levels Updated")
     connection.close()
 #%% usgs funcs
+
 def get_usgs_sites():
     """
     this function retrives every USGS site that has data from a set of pre-defined elevation parameters:
