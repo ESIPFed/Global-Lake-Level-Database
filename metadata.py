@@ -8,7 +8,7 @@ __status__ = 'Development'
 def reference_table_metadata_json(usgs_table):
     """
     Update lake metadata within the Reference ID table
-    :param usgs_table:
+    :param usgs_table: dataframe
     :return:
     """
     import pandas as pd
@@ -46,7 +46,7 @@ def reference_table_metadata_json(usgs_table):
     grealm_json = df_grealm.to_json(orient='index')
     grealm_dict = eval(grealm_json)
 
-    print('grealm dictionary created')
+    print('GREALM dictionary created')
 
     # repeat process with hydroweb summary table, results in json dict with Unique lake ID
     hydroweb_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
@@ -60,9 +60,9 @@ def reference_table_metadata_json(usgs_table):
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')
     hydroweb_dict = eval(hydroweb_json)
 
-    print('hydroweb dictionary created')
+    print('HydroWeb dictionary created')
     # USGS metadata requires use of functions from lake_table_usgs.py, but end result is json dict with unique lake ID
-    usgs_df = usgs_tbl
+    usgs_df = usgs_table
     usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
@@ -74,7 +74,7 @@ def reference_table_metadata_json(usgs_table):
     usgs_dict = usgs_dict.replace('false', '"false"')
     usgs_dict = usgs_dict.replace('null', '"null"')
     usgs_dict = eval(usgs_dict)
-    print('USGS dictionary created')
+    print('USGS Dictionary created')
 
 
     # Execute mysql commands

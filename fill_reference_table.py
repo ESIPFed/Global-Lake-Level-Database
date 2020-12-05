@@ -6,9 +6,12 @@ __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
 def replace_reference_id_table():
-    """gathers all lake names from data sources, assigns a unique ID number
-    This should only be used on initial DB creation
-    else use the update_reference_id_table"""
+    """
+    Gathers all lake names from data sources and assigns a unique ID number
+    _This should only be used on initial DB creation_
+    otherwise use update_reference_id_table()
+    :return: None
+    """
 
     import pandas as pd
     from sqlalchemy import create_engine
@@ -55,8 +58,8 @@ def replace_reference_id_table():
 
 def update_reference_id_table():
     """
-    Update the reference ID table inside of the database
-    :return: Pandas DataFrame
+    Create DataFrame of lake names to pass to updater function
+    :return: Pandas DataFrame of lakes to be updated
     """
     import pandas as pd
     from sqlalchemy import create_engine
