@@ -1,4 +1,15 @@
+# %% Section: MetaInfo
+__author__ = ['John Franey', 'Jake Gearon']
+__credits__ = ['John Franey', 'Jake Gearon', 'Earth Science Information Partners (ESIP)']
+__version__ = '1.0.0'
+__maintainer__ = 'John Franey'
+__email__ = 'franeyjohn96@gmail.com'
+__status__ = 'Development'
 def update_grealm_lake_levels():
+    """
+    Update Lake Water Levels from the [USDA-GREALM Database](https://ipad.fas.usda.gov/cropexplorer/global_reservoir/)
+    :return: None
+    """
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql

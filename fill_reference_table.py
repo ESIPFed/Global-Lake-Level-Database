@@ -1,7 +1,15 @@
+# %% Section: MetaInfo
+__author__ = ['John Franey', 'Jake Gearon']
+__credits__ = ['John Franey', 'Jake Gearon', 'Earth Science Information Partners (ESIP)']
+__version__ = '1.0.0'
+__maintainer__ = 'John Franey'
+__email__ = 'franeyjohn96@gmail.com'
+__status__ = 'Development'
 def replace_reference_id_table():
     """gathers all lake names from data sources, assigns a unique ID number
     This should only be used on initial DB creation
     else use the update_reference_id_table"""
+
     import pandas as pd
     from sqlalchemy import create_engine
     from lake_table_usgs import update_usgs_meta
@@ -46,10 +54,13 @@ def replace_reference_id_table():
 
 
 def update_reference_id_table():
+    """
+    Update the reference ID table inside of the database
+    :return: Pandas DataFrame
+    """
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
-    from lake_table_usgs import get_usgs_sites
     from lake_table_usgs import update_usgs_meta
 
     # Create database connection engines and cursor

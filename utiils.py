@@ -1,6 +1,13 @@
-# Print iterations progress
+# %% Section: MetaInfo
+__author__ = ['John Franey', 'Jake Gearon']
+__credits__ = ['John Franey', 'Jake Gearon', 'Earth Science Information Partners (ESIP)']
+__version__ = '1.0.0'
+__maintainer__ = 'John Franey'
+__email__ = 'franeyjohn96@gmail.com'
+__status__ = 'Development'
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
     """
+    [Code from Greenstick on StackOverflow](https://stackoverflow.com/a/34325723/13617277)
     Call in a loop to create terminal progress bar
     @params:
         iteration   - Required  : current iteration (Int)

@@ -1,4 +1,16 @@
-def reference_table_mtadta_json(usgs_tbl):
+# %% Section: MetaInfo
+__author__ = ['John Franey', 'Jake Gearon']
+__credits__ = ['John Franey', 'Jake Gearon', 'Earth Science Information Partners (ESIP)']
+__version__ = '1.0.0'
+__maintainer__ = 'John Franey'
+__email__ = 'franeyjohn96@gmail.com'
+__status__ = 'Development'
+def reference_table_metadata_json(usgs_tbl):
+    """
+
+    :param usgs_tbl:
+    :return:
+    """
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
@@ -64,9 +76,6 @@ def reference_table_mtadta_json(usgs_tbl):
     usgs_dict = eval(usgs_dict)
     print('USGS dictionary created')
 
-    # USGS process is slow, while in dev I am accessing usgs_json from saved file
-    # with open('/Users/johnfraney/Desktop/usgs_json.json') as f:
-    #     usgs_dict = json.load(f)
 
     # Execute mysql commands, could possibly merge dicts? have not tried, see below line. 1 loop for each dict
     # merged_dict = {**hydroweb_dict, **usgs_dict, **grealm_dict}

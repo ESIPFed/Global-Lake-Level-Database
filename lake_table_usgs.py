@@ -10,7 +10,7 @@ __status__ = 'Development'
 # todo: add source column to lake_water_level so when we pd.read_sql we can filter more quickly.
 def update_usgs_lake_levels():
     """
-    writes in usgs lake level data to existing database, appending new data dynamically
+    Updates USGS-NWIS lake level data to the existing database, appending new data dynamically
     :return: None
     """
     from datetime import datetime
@@ -114,7 +114,7 @@ def update_usgs_lake_levels():
 
 def get_usgs_sites():
     """
-    this function retrives every USGS site that has data from a set of pre-defined elevation parameters:
+    Retrives every USGS-NWIS site with data from a set of pre-defined elevation parameters:
 
     :return: list of sites with water level data
     """
@@ -170,7 +170,7 @@ def get_usgs_sites():
 
 def update_usgs_meta():
     """
-    Updates the meta table of valid sites and associated info
+    Updates the meta table of valid sites and associated info from [USGS-NWIS Database](https://waterdata.usgs.gov/nwis)
     :return: Pandas Dataframe of sites and associated information
     """
     from utiils import printProgressBar

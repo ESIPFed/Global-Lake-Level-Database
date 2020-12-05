@@ -1,4 +1,17 @@
+# %% Section: MetaInfo
+__author__ = ['John Franey', 'Jake Gearon']
+__credits__ = ['John Franey', 'Jake Gearon', 'Earth Science Information Partners (ESIP)']
+__version__ = '1.0.0'
+__maintainer__ = 'John Franey'
+__email__ = 'franeyjohn96@gmail.com'
+__status__ = 'Development'
+
 def update_hydroweb_lake_levels():
+    """
+    Update Lake Water Levels from the [HydroWeb Database](http://hydroweb.theia-land.fr/)
+
+    :return: None
+    """
     import pandas as pd
     from sqlalchemy import create_engine
     from io import BytesIO
