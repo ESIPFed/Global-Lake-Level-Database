@@ -5,10 +5,10 @@ __version__ = '1.0.0'
 __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
-def reference_table_metadata_json(usgs_tbl):
+def reference_table_metadata_json(usgs_table):
     """
-
-    :param usgs_tbl:
+    Update lake metadata within the Reference ID table
+    :param usgs_table:
     :return:
     """
     import pandas as pd
@@ -77,8 +77,7 @@ def reference_table_metadata_json(usgs_tbl):
     print('USGS dictionary created')
 
 
-    # Execute mysql commands, could possibly merge dicts? have not tried, see below line. 1 loop for each dict
-    # merged_dict = {**hydroweb_dict, **usgs_dict, **grealm_dict}
+    # Execute mysql commands
     sql_command = u"UPDATE `reference_ID` SET `metadata` = (%s) WHERE `id_No` = (%s);"
     if len(grealm_dict.values()) > 0:
         printProgressBar(0, len(grealm_dict.values()), prefix='G-REALM:', suffix='Complete', length=50)
