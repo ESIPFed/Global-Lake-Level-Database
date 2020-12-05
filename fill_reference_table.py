@@ -4,8 +4,6 @@ def replace_reference_id_table():
     else use the update_reference_id_table"""
     import pandas as pd
     from sqlalchemy import create_engine
-    import pymysql
-    from lake_table_usgs import get_usgs_sites
     from lake_table_usgs import update_usgs_meta
 
     confirmation = input('Are you sure you want to replace the entire database?\nType "yes" to continue: ')

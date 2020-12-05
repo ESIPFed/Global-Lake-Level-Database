@@ -1,7 +1,6 @@
 def update_hydroweb_lake_levels():
     import pandas as pd
     from sqlalchemy import create_engine
-    import pymysql
     from io import BytesIO
     from zipfile import ZipFile
     import urllib.request

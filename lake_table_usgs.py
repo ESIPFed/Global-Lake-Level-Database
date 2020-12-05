@@ -16,7 +16,6 @@ def update_usgs_lake_levels():
     from datetime import datetime
     import requests
     from requests.exceptions import HTTPError
-    from time import process_time
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
@@ -178,7 +177,6 @@ def update_usgs_meta():
     import pandas as pd
     # TODO Document what each parameter means or have a link to USGS website explaining
     sites = get_usgs_sites()
-    # print("{} sites indexed".format(len(sites)))
     printProgressBar(0, len(sites), prefix='USGS Metadata Update:', suffix='Complete', length=50)
     big_df = []
     for count, site in enumerate(sites, 1):

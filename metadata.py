@@ -2,7 +2,6 @@ def reference_table_mtadta_json(usgs_tbl):
     import pandas as pd
     from sqlalchemy import create_engine
     import pymysql
-    from lake_table_usgs import update_usgs_meta
     from utiils import printProgressBar
     import json
 
