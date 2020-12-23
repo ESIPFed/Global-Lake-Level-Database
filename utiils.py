@@ -5,7 +5,7 @@ __version__ = '1.0.0'
 __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '\u15E7', printEnd = "\r"):
     """
     [Code from Greenstick on StackOverflow](https://stackoverflow.com/a/34325723/13617277)
     Call in a loop to create terminal progress bar
@@ -21,7 +21,8 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
+    already_filled = '\u25e6'
+    bar = already_filled * (filledLength-1) + fill + '\u2022' * (length - filledLength)
     print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
     # Print New Line on Complete
     if iteration == total:

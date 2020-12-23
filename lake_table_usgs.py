@@ -14,7 +14,6 @@ def update_usgs_lake_levels(data_table):
     :return: None
     """
     from datetime import datetime
-    from utiils import get_lake_table
     import requests
     from requests.exceptions import HTTPError
     import pandas as pd

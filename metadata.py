@@ -15,6 +15,7 @@ def reference_table_metadata_json(usgs_tbl):
     from sqlalchemy import create_engine
     from utiils import get_ref_table
     from utiils import printProgressBar
+    import pymysql
     import json
 
     # Create database connection engines and cursor

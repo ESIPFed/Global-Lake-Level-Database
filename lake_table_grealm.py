@@ -12,7 +12,6 @@ def update_grealm_lake_levels(data_table):
     """
     import pandas as pd
     from sqlalchemy import create_engine
-    import pymysql
 
     # Create database connection engines and cursor
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
