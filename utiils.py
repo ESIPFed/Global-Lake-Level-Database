@@ -26,3 +26,25 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     # Print New Line on Complete
     if iteration == total:
         print()
+
+def get_ref_table():
+    import pandas as pd
+    from sqlalchemy import create_engine
+
+    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+                               '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
+
+    df = pd.read_sql('select * from reference_ID', con=sql_engine)
+    sql_engine.close()
+    return df
+
+def get_lake_table():
+    import pandas as pd
+    from sqlalchemy import create_engine
+
+    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+                               '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
+
+    df = pd.read_sql('select * from lake_water_level', con=sql_engine)
+    sql_engine.close()
+    return df

@@ -1,9 +1,10 @@
 from db_create import create_tables
-import fill_reference_table as reference_tables
+import fill_reference_table as reference_tbls
 from metadata import reference_table_metadata_json
 from lake_table_grealm import update_grealm_lake_levels
 from lake_table_hydroweb import update_hydroweb_lake_levels
 from lake_table_usgs import update_usgs_lake_levels
+from utiils import get_lake_table
 
 
 def main():
@@ -11,20 +12,24 @@ def main():
     while True:
         user_input = str(input("[u]pdate or [r]eplace data?: ").lower())
         if user_input == 'r':
-            reference_tables.replace_reference_id_table()
+            reference_tbls.replace_reference_id_table()
             print('Reference table deleted and replaced\nProcess Completed')
 
         elif user_input == 'u':
             update_input = str(input('Update [l]ake levels or [m]etadata?: ')).lower()
 
             if update_input == 'l':
-                update_grealm_lake_levels()
-                update_hydroweb_lake_levels()
-                update_usgs_lake_levels()
+                print('Retrieving existing lake levels...')
+                existing_table = get_lake_table()
+                print('Begin Update process')
+                update_grealm_lake_levels(existing_table)
+                update_hydroweb_lake_levels(existing_table)
+                update_usgs_lake_levels(existing_table)
                 print('Process Completed')
 
             elif update_input == 'm':
-                df = reference_tables.update_reference_id_table()
+                print('Checking for new Lakes from sources...')
+                df = reference_tbls.update_reference_id_table()
                 print('Added new lakes to DB')
                 reference_table_metadata_json(df)
                 print('Updated DB metadata')

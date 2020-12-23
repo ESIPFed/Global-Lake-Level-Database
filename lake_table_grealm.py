@@ -5,7 +5,7 @@ __version__ = '1.0.0'
 __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
-def update_grealm_lake_levels():
+def update_grealm_lake_levels(data_table):
     """
     Update Lake Water Levels from the [USDA-GREALM Database](https://ipad.fas.usda.gov/cropexplorer/global_reservoir/)
     :return: None
@@ -17,13 +17,6 @@ def update_grealm_lake_levels():
     # Create database connection engines and cursor
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
-    connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                                 user='***REMOVED***',
-                                 password='***REMOVED***',
-                                 db='laketest',
-                                 connect_timeout=100000,
-                                 )
-    cursor = connection.cursor()
 
     grealm_sql = u"SELECT `id_No`," \
                  u"`lake_name`," \
@@ -33,6 +26,7 @@ def update_grealm_lake_levels():
 
     # Read in Grealm unique lake ID and observation dates from reference Table
     # Clean up the grealm_lakes_info dataframe
+
     grealm_lakes_info = pd.read_sql(grealm_sql, con=sql_engine)
     grealm_lakes_info['grealm_ID'] = grealm_lakes_info['grealm_ID'].str.strip('"')
 
@@ -45,7 +39,7 @@ def update_grealm_lake_levels():
     for count, (grealm_id, u_id, name) in enumerate(zip(grealm_lakes_info['grealm_ID'],
                                      grealm_lakes_info['id_No'],
                                      grealm_lakes_info['lake_name']), 1):
-
+        # TODO: attempt to get both 10 and 27 day data, merge into 1 df, then add to sql
         try:
             target_url = 'https://ipad.fas.usda.gov/lakes/images/lake{}.10d.2.txt'.format(grealm_id.zfill(4))
             source_df = pd.read_csv(target_url, skiprows=49, sep='\s+', header=None, parse_dates={'date': [2, 3, 4]},
@@ -81,8 +75,7 @@ def update_grealm_lake_levels():
     raw_lake_level_df = pd.concat(ls_df, ignore_index=True, copy=False)
     print('There were {} lake(s) where no GREALM-USDA information could be located'.format(len(missing_data)))
     print('Verifying data against database...this may take some time...')
-    existing_database_df = pd.read_sql('lake_water_level', con=sql_engine)
-    existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
+    existing_database_df = data_table
 
     sql_ready_df = pd.merge(raw_lake_level_df, existing_database_df,
                             indicator=True,
@@ -101,4 +94,4 @@ def update_grealm_lake_levels():
                         chunksize=2000
                         )
     print("GREALM-USDA Lake Levels Updated")
-    connection.close()
+    sql_engine.close()

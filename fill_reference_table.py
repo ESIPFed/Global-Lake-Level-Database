@@ -15,10 +15,10 @@ def replace_reference_id_table():
 
     import pandas as pd
     from sqlalchemy import create_engine
-    from lake_table_usgs import update_usgs_meta
+    from lake_table_usgs import update_usgs_lake_names
 
     confirmation = input('Are you sure you want to replace the entire database?\nType "yes" to continue: ')
-    if confirmation is not 'yes':
+    if confirmation != 'yes':
         print('Confirmation not valid. No action taken')
     else:
         # Create database connection engines and cursor
@@ -35,8 +35,8 @@ def replace_reference_id_table():
 
         # Get lake names from usgs, drop metadata, add source info
         print('--------Gathering USGS lake information--------')
-        usgs_df = update_usgs_meta()
-        usgs_df = usgs_df.rename(columns={'name': 'lake_name'})
+        usgs_df = update_usgs_lake_names()
+        usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
         usgs_df = usgs_df.filter(['lake_name'])
         usgs_df.insert(0, 'source', 'usgs')
 
@@ -47,6 +47,9 @@ def replace_reference_id_table():
                                 infer_datetime_format=True, error_bad_lines=False, skip_blank_lines=True)
         grealm_df = grealm_df[~grealm_df['Lake ID'].str.contains("Total")]
         grealm_df = grealm_df.rename(columns={'Name': 'lake_name'})
+        grealm_df.loc[grealm_df.lake_name.duplicated(keep=False), 'lake_name'] = \
+            grealm_df.loc[grealm_df.lake_name.duplicated(keep=False), 'lake_name'] + '_' + \
+            grealm_df.loc[grealm_df.lake_name.duplicated(keep=False), 'Resolution'].astype(str)
         grealm_df = grealm_df.filter(['lake_name'])
         grealm_df.insert(0, 'source', 'grealm')
 
@@ -63,8 +66,10 @@ def update_reference_id_table():
     """
     import pandas as pd
     from sqlalchemy import create_engine
+    from utiils import get_ref_table
+    from lake_table_usgs import get_usgs_sites
+    from lake_table_usgs import update_usgs_lake_names
     import pymysql
-    from lake_table_usgs import update_usgs_meta
 
     # Create database connection engines and cursor
     sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
@@ -75,7 +80,8 @@ def update_reference_id_table():
                                  db='laketest')
     cursor = connection.cursor()
 
-    reference_table = pd.read_sql('reference_ID', con=sql_engine, columns=['id_No', 'lake_name', 'source'])
+    reference_table = get_ref_table()
+    reference_table = reference_table.drop('metadata', axis=1)
     print('Reference Table Read')
 
     grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
@@ -83,6 +89,9 @@ def update_reference_id_table():
                                    infer_datetime_format=True, error_bad_lines=False, skip_blank_lines=True)
     grealm_source_df = grealm_source_df[~grealm_source_df['Lake ID'].str.contains("Total")]
     grealm_source_df = grealm_source_df.rename(columns={'Name': 'lake_name'})
+    grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'lake_name'] = \
+        grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'lake_name'] + '_' + \
+        grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'Resolution'].astype(str)
     grealm_source_df = grealm_source_df.filter(['lake_name'])
 
 
@@ -90,7 +99,7 @@ def update_reference_id_table():
     grealm_existing_lakes_table = reference_table.loc[reference_table['source'] == 'grealm']
     grealm_ready_df = grealm_source_df[~grealm_source_df.lake_name.isin(grealm_existing_lakes_table['lake_name'])]
     grealm_ready_df.insert(0, 'source', 'grealm')
-    print("GREALM-USDA Metadata Updated")
+    print("New GREALM-USDA Lakes ready for insertion")
 
     # Grab hydroweb source data
     hydroweb_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
@@ -101,17 +110,18 @@ def update_reference_id_table():
     hydroweb_existing_lake_df = reference_table.loc[reference_table['source'] == 'hydroweb']
     hydroweb_ready_df = hydroweb_source_df[~hydroweb_source_df.lake_name.isin(hydroweb_existing_lake_df['lake_name'])]
     hydroweb_ready_df.insert(0, 'source', 'hydroweb')
-    print("HydroWeb Metadata Updated")
+    print("New HydroWeb Lakes ready for insertion")
 
     # Grab usgs source data
-    usgs_source_df_raw = update_usgs_meta()
+    usgs_source_df_raw = update_usgs_lake_names()
     usgs_source_df = usgs_source_df_raw.rename(columns={'station_nm': 'lake_name'})
     usgs_source_df = usgs_source_df.filter(['lake_name'])
 
     usgs_existing_lake_df = reference_table.loc[reference_table['source'] == 'usgs']
+    # TODO: Lake names are not copying over
     usgs_ready_df = usgs_source_df[~usgs_source_df.lake_name.isin(usgs_existing_lake_df['lake_name'])]
     usgs_ready_df.insert(0, 'source', 'usgs')
-    print("USGS-NWIS Metadata Updated")
+    print("New USGS-NWIS Lakes ready for insertion")
 
     sql_ready_df = pd.concat([grealm_ready_df, hydroweb_ready_df, usgs_ready_df], ignore_index=True)
 

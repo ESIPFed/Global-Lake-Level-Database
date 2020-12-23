@@ -6,7 +6,7 @@ __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
 
-def update_hydroweb_lake_levels():
+def update_hydroweb_lake_levels(data_table):
     """
     Update Lake Water Levels from the [HydroWeb Database](http://hydroweb.theia-land.fr/)
 
@@ -74,8 +74,9 @@ def update_hydroweb_lake_levels():
     filtered_lake_levels['lake_name'] = raw_lake_level_df[raw_lake_level_df.columns[-1]]
     # %% Section
     id_labeled_df = pd.merge(hydroweb_lakes_info, filtered_lake_levels, on=['lake_name'])
-    existing_database_df = pd.read_sql('lake_water_level', con=sql_engine)
-    existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
+    existing_database_df = data_table
+
+    #existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
     sql_ready_df = pd.merge(id_labeled_df, existing_database_df,
                                 indicator=True,
                                 how='outer',

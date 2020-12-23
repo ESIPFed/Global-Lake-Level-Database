@@ -5,7 +5,7 @@ __version__ = '1.0.0'
 __maintainer__ = 'John Franey'
 __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
-def reference_table_metadata_json(usgs_table):
+def reference_table_metadata_json(usgs_tbl):
     """
     Update lake metadata within the Reference ID table
     :param usgs_table: dataframe
@@ -13,7 +13,7 @@ def reference_table_metadata_json(usgs_table):
     """
     import pandas as pd
     from sqlalchemy import create_engine
-    import pymysql
+    from utiils import get_ref_table
     from utiils import printProgressBar
     import json
 
@@ -27,26 +27,32 @@ def reference_table_metadata_json(usgs_table):
     cursor = connection.cursor()
 
     # Read in reference table for unique Lake ID and Lake name
-    id_table = pd.read_sql('reference_ID', con=sql_engine, columns=['id_No', 'lake_name', 'source', 'metadata'])
+    id_table = get_ref_table()
     print('Reference Table Read')
 
     # Read in grealm summary table and clean dataframe
     grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
     grealm_source_df = pd.read_csv(grealm_url, skiprows=3, sep="\t", header=0, parse_dates=[-1],
-                     infer_datetime_format=True, error_bad_lines=False, skip_blank_lines=True)
+                                   infer_datetime_format=True, error_bad_lines=False, skip_blank_lines=True)
     grealm_source_df = grealm_source_df[~grealm_source_df['Lake ID'].str.contains("Total")]
     grealm_source_df = grealm_source_df.rename(columns={'Name': 'lake_name', 'Lake ID': 'grealm_database_ID'})
+
+    # Rename lake name to <lake name>_<Resolution> if 2 or more versions of the lake exist
+    grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'lake_name'] =\
+        grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'lake_name'] + '_' +\
+        grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'Resolution'].astype(str)
 
     # Merge reference and grealm tables while keeping unique lake ID number from db, convert to json dict
     grealm_id_table = id_table[(id_table['source'] == 'grealm')]
     grealm_id_table = grealm_id_table.loc[grealm_id_table.index.difference(grealm_id_table.dropna().index)]
     grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
-    df_grealm = pd.merge(grealm_source_df, grealm_id_table, on='lake_name')
+
+    df_grealm = grealm_id_table.merge(grealm_source_df, on='lake_name', how='inner')
     df_grealm = df_grealm.set_index('id_No')
     grealm_json = df_grealm.to_json(orient='index')
     grealm_dict = eval(grealm_json)
 
-    print('GREALM dictionary created')
+    print('grealm dictionary created')
 
     # repeat process with hydroweb summary table, results in json dict with Unique lake ID
     hydroweb_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
@@ -60,9 +66,9 @@ def reference_table_metadata_json(usgs_table):
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')
     hydroweb_dict = eval(hydroweb_json)
 
-    print('HydroWeb dictionary created')
+    print('hydroweb dictionary created')
     # USGS metadata requires use of functions from lake_table_usgs.py, but end result is json dict with unique lake ID
-    usgs_df = usgs_table
+    usgs_df = usgs_tbl
     usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
@@ -74,7 +80,7 @@ def reference_table_metadata_json(usgs_table):
     usgs_dict = usgs_dict.replace('false', '"false"')
     usgs_dict = usgs_dict.replace('null', '"null"')
     usgs_dict = eval(usgs_dict)
-    print('USGS Dictionary created')
+    print('USGS dictionary created')
 
 
     # Execute mysql commands

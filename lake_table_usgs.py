@@ -8,12 +8,13 @@ __email__ = 'franeyjohn96@gmail.com'
 __status__ = 'Development'
 #%% packages
 # todo: add source column to lake_water_level so when we pd.read_sql we can filter more quickly.
-def update_usgs_lake_levels():
+def update_usgs_lake_levels(data_table):
     """
-    Updates USGS-NWIS lake level data to the existing database, appending new data dynamically
+    writes in usgs lake level data to existing database, appending new data dynamically
     :return: None
     """
     from datetime import datetime
+    from utiils import get_lake_table
     import requests
     from requests.exceptions import HTTPError
     import pandas as pd
@@ -82,8 +83,8 @@ def update_usgs_lake_levels():
     id_labeled_df['date'] = id_labeled_df['date'].dt.strftime('%Y-%m-%d')
     id_labeled_df = id_labeled_df.drop(['dateTime'], axis=1)
     id_labeled_df = id_labeled_df.rename(columns={'value': 'water_level'})
-    existing_database_df = pd.read_sql('lake_water_level', con=sql_engine)
-    existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
+    existing_database_df = data_table
+    # existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
 
     sql_ready_df = pd.merge(id_labeled_df, existing_database_df,
                             indicator=True,
@@ -114,7 +115,7 @@ def update_usgs_lake_levels():
 
 def get_usgs_sites():
     """
-    Retrives every USGS-NWIS site with data from a set of pre-defined elevation parameters:
+    this function retrives every USGS site that has data from a set of pre-defined elevation parameters:
 
     :return: list of sites with water level data
     """
@@ -168,9 +169,9 @@ def get_usgs_sites():
     return df["site_no"].values
 
 
-def update_usgs_meta():
+def update_usgs_lake_names():
     """
-    Updates the meta table of valid sites and associated info from [USGS-NWIS Database](https://waterdata.usgs.gov/nwis)
+    Updates the meta table of valid sites and associated info
     :return: Pandas Dataframe of sites and associated information
     """
     from utiils import printProgressBar
@@ -184,5 +185,5 @@ def update_usgs_meta():
                       "siteOutput=expanded&siteType=LK&siteStatus=all&hasDataTypeCd=iv,dv".format(site)
         df2 = pd.read_csv(lake_m_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
         big_df.append(df2)
-        printProgressBar(count + 1, len(sites), prefix = 'USGS Metadata Update:', suffix = 'Complete', length = 50)
+        printProgressBar(count + 1, len(sites), prefix='Retriving new USGS-NWIS Lakes:', suffix='Complete', length=50)
     return pd.concat(big_df)
