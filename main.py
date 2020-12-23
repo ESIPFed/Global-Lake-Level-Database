@@ -33,7 +33,7 @@ def main():
                 print('Added new lakes to DB')
                 reference_table_metadata_json(df)
                 print('Updated DB metadata')
-                print('Process Completed')
+                print('Process Completed!')
 
             else:
                 continue

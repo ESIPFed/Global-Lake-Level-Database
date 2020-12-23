@@ -29,7 +29,6 @@ def reference_table_metadata_json(usgs_tbl):
 
     # Read in reference table for unique Lake ID and Lake name
     id_table = get_ref_table()
-    print('Reference Table Read')
 
     # Read in grealm summary table and clean dataframe
     grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
@@ -53,7 +52,7 @@ def reference_table_metadata_json(usgs_tbl):
     grealm_json = df_grealm.to_json(orient='index')
     grealm_dict = eval(grealm_json)
 
-    print('grealm dictionary created')
+    print('grealm metadata prepped')
 
     # repeat process with hydroweb summary table, results in json dict with Unique lake ID
     hydroweb_url = 'http://hydroweb.theia-land.fr/hydroweb/authdownload?list=lakes&format=txt'
@@ -67,7 +66,7 @@ def reference_table_metadata_json(usgs_tbl):
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')
     hydroweb_dict = eval(hydroweb_json)
 
-    print('hydroweb dictionary created')
+    print('hydroweb metadata prepped')
     # USGS metadata requires use of functions from lake_table_usgs.py, but end result is json dict with unique lake ID
     usgs_df = usgs_tbl
     usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
@@ -81,31 +80,34 @@ def reference_table_metadata_json(usgs_tbl):
     usgs_dict = usgs_dict.replace('false', '"false"')
     usgs_dict = usgs_dict.replace('null', '"null"')
     usgs_dict = eval(usgs_dict)
-    print('USGS dictionary created')
+    print('USGS metadata prepped')
 
 
     # Execute mysql commands
     sql_command = u"UPDATE `reference_ID` SET `metadata` = (%s) WHERE `id_No` = (%s);"
+
     if len(grealm_dict.values()) > 0:
         printProgressBar(0, len(grealm_dict.values()), prefix='G-REALM:', suffix='Complete', length=50)
-        for count, key, value in enumerate(grealm_dict.items(), 1):
+        for count, (key, value) in enumerate(grealm_dict.items(), 1):
             cursor.execute(sql_command, (json.dumps(value), key))
             printProgressBar(count + 1, len(grealm_dict.values()), prefix='GREALM-USDA:', suffix='Complete', length=50)
         connection.commit()
+
     if len(hydroweb_dict.values()) > 0:
         printProgressBar(0, len(hydroweb_dict.values()), prefix='HydroWeb:', suffix='Complete', length=50)
-        for count, key, value in enumerate(hydroweb_dict.items(), 1):
+        for count, (key, value) in enumerate(hydroweb_dict.items(), 1):
             cursor.execute(sql_command, (json.dumps(value), key))
             printProgressBar(count + 1, len(hydroweb_dict.values()), prefix='HydroWeb:', suffix='Complete', length=50)
         connection.commit()
+
     if len(usgs_dict.values()) > 0:
         printProgressBar(0, len(usgs_dict.values()), prefix='USGS-NWIS:', suffix='Complete', length=50)
-        for count, key, value in enumerate(usgs_dict.items(), 1):
+        for count, (key, value) in enumerate(usgs_dict.items(), 1):
             cursor.execute(sql_command, (json.dumps(value), key))
             printProgressBar(count + 1, len(usgs_dict.values()), prefix='USGS-NWIS:', suffix='Complete', length=50)
         connection.commit()
-    connection.close()
 
-    print('Task Complete!')
+    connection.close()
+    sql_engine.close()
 
 
