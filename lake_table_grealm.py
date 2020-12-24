@@ -12,9 +12,12 @@ def update_grealm_lake_levels(data_table):
     """
     import pandas as pd
     from sqlalchemy import create_engine
+    import config
 
+    username = config.username
+    password = config.password
     # Create database connection engines and cursor
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+    sql_engine = create_engine('mysql+pymysql://' + username + ':' + password +
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
 
     grealm_sql = u"SELECT `id_No`," \

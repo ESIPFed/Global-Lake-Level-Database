@@ -32,7 +32,7 @@ def get_ref_table():
     import pandas as pd
     from sqlalchemy import create_engine
 
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+    sql_engine = create_engine('mysql+pymysql://admin:aurs8kah.JAIP6tref'
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
 
     df = pd.read_sql('select * from reference_ID', con=sql_engine)
@@ -43,7 +43,7 @@ def get_lake_table():
     import pandas as pd
     from sqlalchemy import create_engine
 
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+    sql_engine = create_engine('mysql+pymysql://admin:aurs8kah.JAIP6tref'
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
 
     df = pd.read_sql('select * from lake_water_level', con=sql_engine)

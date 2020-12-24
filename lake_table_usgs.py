@@ -20,12 +20,16 @@ def update_usgs_lake_levels(data_table):
     from sqlalchemy import create_engine
     import pymysql
     from utiils import printProgressBar
+    import config
 
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+    username = config.username
+    password = config.password
+
+    sql_engine = create_engine('mysql+pymysql://' + username + ':' + password +
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
     connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                                 user='***REMOVED***',
-                                 password='***REMOVED***',
+                                 user=username,
+                                 password=password,
                                  db='laketest',
                                  connect_timeout=100000,
                                  )

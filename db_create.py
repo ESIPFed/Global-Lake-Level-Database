@@ -1,9 +1,12 @@
 def create_tables():
     import pymysql
+    import config
 
+    username = config.username
+    password = config.password
     connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                                 user='***REMOVED***',
-                                 password='***REMOVED***',
+                                 user=username,
+                                 password=password,
                                  db='laketest')
     cursor = connection.cursor()
 

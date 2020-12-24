@@ -17,13 +17,17 @@ def reference_table_metadata_json(usgs_tbl):
     from utiils import printProgressBar
     import pymysql
     import json
+    import config
+
+    username = config.username
+    password = config.password
 
     # Create database connection engines and cursor
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+    sql_engine = create_engine('mysql+pymysql://' + username + ':' + password +
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
     connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                                 user='***REMOVED***',
-                                 password='***REMOVED***',
+                                 user=username,
+                                 password=password,
                                  db='laketest')
     cursor = connection.cursor()
 

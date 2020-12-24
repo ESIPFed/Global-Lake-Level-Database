@@ -16,13 +16,17 @@ def replace_reference_id_table():
     import pandas as pd
     from sqlalchemy import create_engine
     from lake_table_usgs import update_usgs_lake_names
+    import config
+
+    username = config.username
+    password = config.password
 
     confirmation = input('Are you sure you want to replace the entire database?\nType "yes" to continue: ')
     if confirmation != 'yes':
         print('Confirmation not valid. No action taken')
     else:
         # Create database connection engines and cursor
-        sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+        sql_engine = create_engine('mysql+pymysql://' + username + ':' + password +
                                    '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
 
         # Get lake names from hydroweb, drop metadata, add source info
@@ -70,13 +74,15 @@ def update_reference_id_table():
     from lake_table_usgs import get_usgs_sites
     from lake_table_usgs import update_usgs_lake_names
     import pymysql
+    import config
 
-    # Create database connection engines and cursor
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
-                               '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
+    username = config.username
+    password = config.password
+
+    # Create database connection
     connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
-                                 user='***REMOVED***',
-                                 password='***REMOVED***',
+                                 user=username,
+                                 password=password,
                                  db='laketest')
     cursor = connection.cursor()
 

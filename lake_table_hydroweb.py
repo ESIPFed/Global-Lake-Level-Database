@@ -18,6 +18,8 @@ def update_hydroweb_lake_levels(data_table):
     from zipfile import ZipFile
     import urllib.request
     from utiils import printProgressBar
+    import config
+
     # %% Section: MetaInfo
     __author__ = 'John Franey'
     __credits__ = ['John Franey', 'Jake Gearon']
@@ -27,7 +29,9 @@ def update_hydroweb_lake_levels(data_table):
     __email__ = 'franeyjohn96@gmail.com'
     __status__ = 'Development'
     # %%
-    sql_engine = create_engine('mysql+pymysql://***REMOVED***:***REMOVED***'
+    username = config.username
+    password = config.password
+    sql_engine = create_engine('mysql+pymysql://' + username + ':' + password +
                                '@lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest').connect()
     hydroweb_sql = u"SELECT `id_No`," \
                    u"`lake_name` " \
