@@ -13,6 +13,7 @@ def update_grealm_lake_levels(data_table):
     import pandas as pd
     from sqlalchemy import create_engine
     import config
+    from utiils import get_lake_table
 
     username = config.username
     password = config.password
@@ -76,8 +77,9 @@ def update_grealm_lake_levels(data_table):
                          length=50)
     raw_lake_level_df = pd.concat(ls_df, ignore_index=True, copy=False)
     print('There were {} lake(s) where no GREALM-USDA information could be located'.format(len(missing_data)))
-    existing_database_df = data_table
-
+    existing_database_df = get_lake_table()
+    existing_database_df['date'] = pd.to_datetime(existing_database_df['date'])
+    raw_lake_level_df['date'] = pd.to_datetime(raw_lake_level_df['date'])
     sql_ready_df = raw_lake_level_df.merge(existing_database_df, how='left', indicator=True).query('_merge == "left_only"').drop(['_merge'], axis=1)
 
     sql_ready_df.to_sql('lake_water_level',

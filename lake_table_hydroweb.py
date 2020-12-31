@@ -80,7 +80,8 @@ def update_hydroweb_lake_levels(data_table):
     id_labeled_df = pd.merge(hydroweb_lakes_info, filtered_lake_levels, on=['lake_name'])
     existing_database_df = data_table
 
-    #existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
+    existing_database_df['date'] = pd.to_datetime(existing_database_df['date'])
+    raw_lake_level_df['date'] = pd.to_datetime(raw_lake_level_df['date'])
     sql_ready_df = pd.merge(id_labeled_df, existing_database_df,
                                 indicator=True,
                                 how='outer',

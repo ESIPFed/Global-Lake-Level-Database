@@ -86,8 +86,11 @@ def update_usgs_lake_levels(data_table):
     id_labeled_df['date'] = id_labeled_df['date'].dt.strftime('%Y-%m-%d')
     id_labeled_df = id_labeled_df.drop(['dateTime'], axis=1)
     id_labeled_df = id_labeled_df.rename(columns={'value': 'water_level'})
+
     existing_database_df = data_table
-    # existing_database_df['date'] = existing_database_df['date'].dt.strftime('%Y-%m-%d')
+
+    existing_database_df['date'] = pd.to_datetime(existing_database_df['date'])
+    id_labeled_df['date'] = pd.to_datetime(id_labeled_df['date'])
 
     sql_ready_df = pd.merge(id_labeled_df, existing_database_df,
                             indicator=True,
