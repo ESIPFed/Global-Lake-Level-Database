@@ -105,6 +105,7 @@ def update_usgs_lake_levels(data_table):
     # sql_ready_df = sql_ready_df.drop_duplicates(subset=['id_No', 'date'], keep=False)
     # %%
     sql_ready_df['date'] = sql_ready_df['date'].dt.strftime('%Y-%m-%d')
+    sql_ready_df = sql_ready_df.filter(['id_No', 'lake_name', 'water_level', 'date'])
     sql_ready_df.to_sql('lake_water_level',
                         con=sql_engine,
                         index=False,

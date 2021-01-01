@@ -85,6 +85,7 @@ def update_grealm_lake_levels(data_table):
     # sql_ready_df = raw_lake_level_df.merge(existing_database_df, how='left', indicator=True).query('_merge == "left_only"').drop(['_merge'], axis=1)
     sql_ready_df = pd.concat([existing_database_df, raw_lake_level_df]).drop_duplicates(subset=['id_No', 'date'], keep=False).reset_index(drop=True)
     sql_ready_df['date'] = sql_ready_df['date'].dt.strftime('%Y-%m-%d')
+    sql_ready_df = sql_ready_df.filter(['id_No', 'lake_name', 'water_level', 'date'])
 
     sql_ready_df.to_sql('lake_water_level',
                         con=sql_engine,
@@ -94,3 +95,9 @@ def update_grealm_lake_levels(data_table):
                         )
     print("GREALM-USDA Lake Levels Updated")
     sql_engine.close()
+if __name__ == '__main__':
+    from db_create import create_tables
+    from utiils import get_lake_table
+    create_tables()
+    data_table = get_lake_table()
+    update_grealm_lake_levels(data_table)
