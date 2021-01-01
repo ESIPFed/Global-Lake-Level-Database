@@ -82,20 +82,13 @@ def update_hydroweb_lake_levels(data_table):
 
     existing_database_df['date'] = pd.to_datetime(existing_database_df['date'])
     id_labeled_df['date'] = pd.to_datetime(id_labeled_df['date'])
-    # sql_ready_df = pd.merge(id_labeled_df, existing_database_df,
-    #                             indicator=True,
-    #                             how='outer',
-    #                             on=['id_No', 'date'],
-    #                             ).query('_merge=="left_only"').drop('_merge', axis=1)
-
-    sql_ready_df = pd.concat([existing_database_df, id_labeled_df]).drop_duplicates(subset=['id_No', 'date'],
-                                                                                        keep=False).reset_index(
-        drop=True)
+    sql_ready_df = pd.merge(left = id_labeled_df, right = existing_database_df, on = ['id_No', 'date'], how = 'left',
+                            indicator = True).query('_merge == "left_only"').drop(['_merge'], axis = 1)
+    sql_ready_df = sql_ready_df.drop(['lake_name_y', 'water_level_y'], axis=1)
+    sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name', 'water_level_x': 'water_level'})
+    sql_ready_df = sql_ready_df[~sql_ready_df[['id_No', 'date']].apply(frozenset, axis = 1).duplicated()]
     sql_ready_df['date'] = sql_ready_df['date'].dt.strftime('%Y-%m-%d')
-    # sql_ready_df = sql_ready_df.drop(['lake_name_y', 'water_level_y'], axis=1)
-    # sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name', 'water_level_x': 'water_level'})
-    # sql_ready_df = sql_ready_df.drop_duplicates(subset=['id_No', 'date'], keep=False)
-    sql_ready_df = sql_ready_df.filter(['id_No', 'lake_name', 'water_level', 'date'])
+
 
     sql_ready_df.to_sql('lake_water_level',
                         con=sql_engine,

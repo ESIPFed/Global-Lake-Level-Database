@@ -77,15 +77,17 @@ def update_grealm_lake_levels(data_table):
                          length=50)
     raw_lake_level_df = pd.concat(ls_df, ignore_index=True, copy=False)
     print('There were {} lake(s) where no GREALM-USDA information could be located'.format(len(missing_data)))
-    existing_database_df = get_lake_table()
+    existing_database_df = data_table
 
     existing_database_df['date'] = pd.to_datetime(existing_database_df['date'])
     raw_lake_level_df['date'] = pd.to_datetime(raw_lake_level_df['date'])
 
-    # sql_ready_df = raw_lake_level_df.merge(existing_database_df, how='left', indicator=True).query('_merge == "left_only"').drop(['_merge'], axis=1)
-    sql_ready_df = pd.concat([existing_database_df, raw_lake_level_df]).drop_duplicates(subset=['id_No', 'date'], keep=False).reset_index(drop=True)
+    sql_ready_df = pd.merge(left = raw_lake_level_df, right = existing_database_df, on = ['id_No', 'date'], how = 'left',
+                            indicator = True).query('_merge == "left_only"').drop(['_merge'], axis = 1)
+    sql_ready_df = sql_ready_df.drop(['lake_name_y', 'water_level_y'], axis=1)
+    sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name', 'water_level_x': 'water_level'})
+    sql_ready_df = sql_ready_df[~sql_ready_df[['id_No', 'date']].apply(frozenset, axis = 1).duplicated()]
     sql_ready_df['date'] = sql_ready_df['date'].dt.strftime('%Y-%m-%d')
-    sql_ready_df = sql_ready_df.filter(['id_No', 'lake_name', 'water_level', 'date'])
 
     sql_ready_df.to_sql('lake_water_level',
                         con=sql_engine,
