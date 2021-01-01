@@ -91,6 +91,7 @@ def update_hydroweb_lake_levels(data_table):
     sql_ready_df = pd.concat([existing_database_df, raw_lake_level_df]).drop_duplicates(subset=['id_No', 'date'],
                                                                                         keep=False).reset_index(
         drop=True)
+    sql_ready_df['date'] = sql_ready_df['date'].dt.strftime('%Y-%m-%d')
     # sql_ready_df = sql_ready_df.drop(['lake_name_y', 'water_level_y'], axis=1)
     # sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name', 'water_level_x': 'water_level'})
     # sql_ready_df = sql_ready_df.drop_duplicates(subset=['id_No', 'date'], keep=False)
