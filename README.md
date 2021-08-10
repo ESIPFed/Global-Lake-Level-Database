@@ -22,7 +22,7 @@ The GLLD consists of two tables:
 
 The *reference_ID* table contains the **Unique ID Number, Lake Name, Original Source, and Metadata**, of all lakes.
 The **Unique ID Number** is assigned incrementally as new lakes are added to the GLLD. This is the *primary key* for the MySQL table. This number is what is primarly used to identify
-and reference lakes in the GLLD and LakePy. If the same lake exists from multiple sources, there will be two lakeseach with a unique ID.
+and reference lakes in the GLLD and LakePy. If the same lake exists from multiple sources, there will be two lakes with a unique ID.
 For example, Lake Mead exists in both the hydroweb data and the USGS data. As shown below, both copies are retained and treated as unique entries.
 
 |    |   id_No | source   | lake_name                           |
@@ -34,7 +34,7 @@ The **lake name** is copied exactly as is from the original data source. The **s
 the data comes from. Finally the **metadata** stores all available metadata from the data source as a JSON array.
 
 The **lake_water_level** table contains the actual historic data for each lake. This table uses a *composite primary key* 
-of the **Unique ID Number** and **date (YYYY-MM-DD)** for the MYSQL table. This method of a primary key limits the GLLD to have a maximum resolution of
+of the **Unique ID Number** and **date (YYYY-MM-DD)** for the MYSQL table. This method of a composite primary key limits the GLLD to have a maximum resolution of
 one unique lake measurement per day for each lake.
 
 ## Functionality
