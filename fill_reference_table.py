@@ -48,7 +48,7 @@ def replace_reference_id_table():
         print('--------Gathering G-Realm lake information--------')
         grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
         grealm_df = pd.read_csv(grealm_url, skiprows=3, sep="\t", header=0, parse_dates=[-1],
-                                infer_datetime_format=True, error_bad_lines=False, skip_blank_lines=True)
+                                infer_datetime_format=True, on_bad_lines='skip', skip_blank_lines=True)
         grealm_df = grealm_df[~grealm_df['Lake ID'].str.contains("Total")]
         grealm_df = grealm_df.rename(columns={'Name': 'lake_name'})
         grealm_df.loc[grealm_df.lake_name.duplicated(keep=False), 'lake_name'] = \
@@ -92,7 +92,7 @@ def update_reference_id_table():
 
     grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
     grealm_source_df = pd.read_csv(grealm_url, skiprows=3, sep="\t", header=0, parse_dates=[-1],
-                                   infer_datetime_format=True, error_bad_lines=False, skip_blank_lines=True)
+                                   infer_datetime_format=True, on_bad_lines='skip', skip_blank_lines=True)
     grealm_source_df = grealm_source_df[~grealm_source_df['Lake ID'].str.contains("Total")]
     grealm_source_df = grealm_source_df.rename(columns={'Name': 'lake_name'})
     grealm_source_df.loc[grealm_source_df.lake_name.duplicated(keep=False), 'lake_name'] = \
