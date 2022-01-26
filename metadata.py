@@ -49,12 +49,15 @@ def reference_table_metadata_json(usgs_tbl):
     # Merge reference and grealm tables while keeping unique lake ID number from db, convert to json dict
     grealm_id_table = id_table[(id_table['source'] == 'grealm')]
     grealm_id_table = grealm_id_table.loc[grealm_id_table.index.difference(grealm_id_table.dropna().index)]
-    grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
+    #grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
 
     df_grealm = grealm_id_table.merge(grealm_source_df, on='lake_name', how='inner')
     df_grealm = df_grealm.set_index('id_No')
     grealm_json = df_grealm.to_json(orient='index')
-    grealm_dict = eval(grealm_json)
+    try:
+        grealm_dict = eval(grealm_json)
+    except NameError:
+        grealm_dict = {}
 
     print('grealm metadata prepped')
 
@@ -72,8 +75,7 @@ def reference_table_metadata_json(usgs_tbl):
 
     print('hydroweb metadata prepped')
     # USGS metadata requires use of functions from lake_table_usgs.py, but end result is json dict with unique lake ID
-    usgs_df = usgs_tbl
-    usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
+    usgs_df = usgs_tbl.rename(columns={'station_nm': 'lake_name'})
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
     usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')

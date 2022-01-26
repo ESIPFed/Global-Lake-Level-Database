@@ -39,8 +39,9 @@ def replace_reference_id_table():
 
         # Get lake names from usgs, drop metadata, add source info
         print('--------Gathering USGS lake information--------')
-        usgs_df = update_usgs_lake_names()
-        usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
+        usgs_source_df_raw = update_usgs_lake_names()
+
+        usgs_df = usgs_source_df_raw.rename(columns={'station_nm': 'lake_name'})
         usgs_df = usgs_df.filter(['lake_name'])
         usgs_df.insert(0, 'source', 'usgs')
 
@@ -61,6 +62,7 @@ def replace_reference_id_table():
 
         print('--------Overwriting database--------')
         lake_reference_df.to_sql('reference_ID', con=sql_engine, if_exists='replace', index_label='id_No')
+        return usgs_source_df_raw
 
 
 def update_reference_id_table():
@@ -80,7 +82,7 @@ def update_reference_id_table():
     password = config.password
 
     # Create database connection
-    connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com',
+    connection = pymysql.connect(host='lake-test1.cevt7olsswvw.us-east-2.rds.amazonaws.com:3306/laketest',
                                  user=username,
                                  password=password,
                                  db='laketest')
@@ -122,7 +124,6 @@ def update_reference_id_table():
     usgs_source_df_raw = update_usgs_lake_names()
     usgs_source_df = usgs_source_df_raw.rename(columns={'station_nm': 'lake_name'})
     usgs_source_df = usgs_source_df.filter(['lake_name'])
-
     usgs_existing_lake_df = reference_table.loc[reference_table['source'] == 'usgs']
     # TODO: Lake names are not copying over
     usgs_ready_df = usgs_source_df[~usgs_source_df.lake_name.isin(usgs_existing_lake_df['lake_name'])]

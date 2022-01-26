@@ -12,7 +12,8 @@ def main():
     while True:
         user_input = str(input("[u]pdate or [r]eplace data?: ").lower())
         if user_input == 'r':
-            reference_tbls.replace_reference_id_table()
+            usgs_tbl = reference_tbls.replace_reference_id_table()
+            reference_table_metadata_json(usgs_tbl)
             print('Reference table deleted and replaced\nProcess Completed')
 
         elif user_input == 'u':

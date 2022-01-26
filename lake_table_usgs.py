@@ -169,6 +169,7 @@ def get_usgs_sites():
                 'begin_date={}&end_date={}&date_format=YYYY-MM-DD&rdb_compression=file&' \
                 'list_of_search_criteria=site_tp_cd%2Crealtime_parameter_selection'.format(begin_date, end_date)
     df = pd.read_csv(lake_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
+    print(df["site_no"].values)
     return df["site_no"].values
 
 
@@ -187,6 +188,9 @@ def update_usgs_lake_names():
         lake_m_list = "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites={}&" \
                       "siteOutput=expanded&siteType=LK&siteStatus=all&hasDataTypeCd=iv,dv".format(site)
         df2 = pd.read_csv(lake_m_list, sep="\t", comment="#", header=[0], low_memory=False).drop([0], axis=0)
+        print(df2)
         big_df.append(df2)
         printProgressBar(count + 1, len(sites), prefix='Retriving new USGS-NWIS Lakes:', suffix='Complete', length=50)
-    return pd.concat(big_df)
+    df = pd.concat(big_df)
+    df.to_csv("/Users/jakegearon/Downloads/test2.csv")
+    return df
