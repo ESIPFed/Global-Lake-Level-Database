@@ -187,7 +187,7 @@ def reference_table_metadata_json_replace():
     hydroweb_id_table = hydroweb_id_table.loc[hydroweb_id_table.index.difference(hydroweb_id_table.dropna().index)]
     hydroweb_id_table = hydroweb_id_table.drop(['metadata'], axis=1)
     hydroweb_indexed_df = pd.merge(hydroweb_df, hydroweb_id_table, on='lake_name')
-    hydroweb_indexed_df = hydroweb_indexed_df.set_index('id_No')
+    # hydroweb_indexed_df = hydroweb_indexed_df.set_index('id_No')
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')
     hydroweb_dict = eval(hydroweb_json)
 
@@ -198,7 +198,7 @@ def reference_table_metadata_json_replace():
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
     usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')
-    usgs_df = usgs_df.set_index('id_No')
+    # usgs_df = usgs_df.set_index('id_No')
     usgs_df = usgs_df.drop(['metadata'], axis=1)
     usgs_dict = usgs_df.to_json(orient='index')
     usgs_dict = usgs_dict.replace('true', '"true"')
