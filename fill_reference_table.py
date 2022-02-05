@@ -59,11 +59,11 @@ def replace_reference_id_table():
         grealm_df.insert(0, 'source', 'grealm')
 
         lake_reference_df = pd.concat([hydroweb_df, usgs_df, grealm_df], ignore_index=True)
-        # lake_reference_df['metadata'] = ""
 
         print('--------Overwriting database--------')
         lake_reference_df.to_sql('reference_ID', con=sql_engine, if_exists='replace', index_label='id_No',
-                                 chunksize = 100000)
+                                 chunksize=100000)
+        print(lake_reference_df.head(100))
         return lake_reference_df
 
 

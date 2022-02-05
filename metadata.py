@@ -118,7 +118,7 @@ def reference_table_metadata_json(usgs_tbl, lake_reference_df):
     connection.close()
     sql_engine.close()
 
-def reference_table_metadata_json_replace(lake_reference_df):
+def reference_table_metadata_json_replace():
     """
     Update lake metadata within the Reference ID table
     :param usgs_table: dataframe
@@ -145,9 +145,12 @@ def reference_table_metadata_json_replace(lake_reference_df):
     cursor = connection.cursor()
 
     # Read in reference table for unique Lake ID and Lake name
-    id_table = lake_reference_df
-    print(lake_reference_df)
+    # id_table = lake_reference_df
 
+    sql_command_metadata = u"ALTER TABLE reference_ID ADD COLUMN metadata JSON AFTER lake_name"
+
+    cursor.execute(sql_command_metadata)
+    id_table = pd.read_sql('select * from reference_ID', con=sql_engine)
     # Read in grealm summary table and clean dataframe
     grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
     grealm_source_df = pd.read_csv(grealm_url, skiprows=3, sep="\t", header=0, parse_dates=[-1],
@@ -163,11 +166,11 @@ def reference_table_metadata_json_replace(lake_reference_df):
     # Merge reference and grealm tables while keeping unique lake ID number from db, convert to json dict
     grealm_id_table = id_table[(id_table['source'] == 'grealm')]
     grealm_id_table = grealm_id_table.loc[grealm_id_table.index.difference(grealm_id_table.dropna().index)]
-    #grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
+    # grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
 
     df_grealm = grealm_id_table.merge(grealm_source_df, on='lake_name', how='inner')
     print(df_grealm.columns)
-    df_grealm = df_grealm.set_index('id_No')
+    # df_grealm = df_grealm.set_index('id_No')
     grealm_json = df_grealm.to_json(orient='index')
     try:
         grealm_dict = eval(grealm_json)
@@ -182,7 +185,7 @@ def reference_table_metadata_json_replace(lake_reference_df):
     hydroweb_df = hydroweb_df.rename(columns={'lake': 'lake_name'})
     hydroweb_id_table = id_table.loc[id_table['source'] == 'hydroweb']
     hydroweb_id_table = hydroweb_id_table.loc[hydroweb_id_table.index.difference(hydroweb_id_table.dropna().index)]
-    #hydroweb_id_table = hydroweb_id_table.drop(['metadata'], axis=1)
+    hydroweb_id_table = hydroweb_id_table.drop(['metadata'], axis=1)
     hydroweb_indexed_df = pd.merge(hydroweb_df, hydroweb_id_table, on='lake_name')
     hydroweb_indexed_df = hydroweb_indexed_df.set_index('id_No')
     hydroweb_json = hydroweb_indexed_df.to_json(orient='index')
@@ -196,7 +199,7 @@ def reference_table_metadata_json_replace(lake_reference_df):
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
     usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')
     usgs_df = usgs_df.set_index('id_No')
-    #usgs_df = usgs_df.drop(['metadata'], axis=1)
+    usgs_df = usgs_df.drop(['metadata'], axis=1)
     usgs_dict = usgs_df.to_json(orient='index')
     usgs_dict = usgs_dict.replace('true', '"true"')
     usgs_dict = usgs_dict.replace('false', '"false"')

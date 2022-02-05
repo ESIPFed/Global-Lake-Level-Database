@@ -14,8 +14,8 @@ def main():
     while True:
         user_input = str(input("[u]pdate or [r]eplace data?: ").lower())
         if user_input == 'r':
-            lake_reference_df = reference_tbls.replace_reference_id_table()
-            reference_table_metadata_json_replace(lake_reference_df)
+            reference_tbls.replace_reference_id_table()
+            reference_table_metadata_json_replace()
             print('Reference table deleted and replaced\nProcess Completed')
 
         elif user_input == 'u':
@@ -42,7 +42,7 @@ def main():
                 continue
         if user_input == 'q':
             break
-
+    return lake_reference_df
 
 if __name__ == '__main__':
-    main()
+    df = main()
