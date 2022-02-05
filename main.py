@@ -1,9 +1,11 @@
 from db_create import create_tables
 import fill_reference_table as reference_tbls
 from metadata import reference_table_metadata_json
+from metadata import reference_table_metadata_json_replace
 from lake_table_grealm import update_grealm_lake_levels
 from lake_table_hydroweb import update_hydroweb_lake_levels
 from lake_table_usgs import update_usgs_lake_levels
+from lake_table_usgs import update_usgs_lake_names
 from utiils import get_lake_table
 
 
@@ -12,8 +14,8 @@ def main():
     while True:
         user_input = str(input("[u]pdate or [r]eplace data?: ").lower())
         if user_input == 'r':
-            usgs_tbl = reference_tbls.replace_reference_id_table()
-            reference_table_metadata_json(usgs_tbl)
+            lake_reference_df = reference_tbls.replace_reference_id_table()
+            reference_table_metadata_json_replace(lake_reference_df)
             print('Reference table deleted and replaced\nProcess Completed')
 
         elif user_input == 'u':
