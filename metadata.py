@@ -199,7 +199,7 @@ def reference_table_metadata_json_replace():
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
     usgs_df = pd.merge(usgs_df, usgs_id_table, on='lake_name')
     # usgs_df = usgs_df.set_index('id_No')
-    usgs_df = usgs_df.drop(['metadata'], axis=1)
+    # usgs_df = usgs_df.drop(['metadata'], axis=1)
     usgs_dict = usgs_df.to_json(orient='index')
     usgs_dict = usgs_dict.replace('true', '"true"')
     usgs_dict = usgs_dict.replace('false', '"false"')
