@@ -146,9 +146,9 @@ def reference_table_metadata_json_replace():
     # Read in reference table for unique Lake ID and Lake name
     # id_table = lake_reference_df
 
-    #sql_command_metadata = u"ALTER TABLE reference_ID ADD COLUMN metadata JSON AFTER lake_name"
+    sql_command_metadata = u"ALTER TABLE reference_ID ADD COLUMN metadata JSON AFTER lake_name"
 
-    #cursor.execute(sql_command_metadata)
+    cursor.execute(sql_command_metadata)
     id_table = pd.read_sql('select * from reference_ID', con=sql_engine)
     # Read in grealm summary table and clean dataframe
     grealm_url = 'https://ipad.fas.usda.gov/lakes/images/LakesReservoirsCSV.txt'
@@ -166,12 +166,12 @@ def reference_table_metadata_json_replace():
     grealm_id_table = id_table[(id_table['source'] == 'grealm')]
     grealm_id_table = grealm_id_table.loc[grealm_id_table.index.difference(grealm_id_table.dropna().index)]
     grealm_id_table = grealm_id_table.drop(['metadata'], axis=1)
-
     df_grealm = grealm_id_table.merge(grealm_source_df, on='lake_name', how='inner')
     df_grealm = df_grealm.drop_duplicates(subset=['id_No'])
     df_grealm = df_grealm.set_index('id_No')
-    df_grealm.to_csv('test.csv')
-    grealm_json = df_grealm.to_json(orient='index')
+    df_grealm.dropna(axis = 1, how = 'all', inplace = True)
+    grealm_json = df_grealm.to_json(orient = 'index')
+    grealm_json = grealm_json.replace('null', '"null"')
     try:
         grealm_dict = eval(grealm_json)
     except NameError:
@@ -194,8 +194,9 @@ def reference_table_metadata_json_replace():
     print('hydroweb metadata prepped')
     # USGS metadata requires use of functions from lake_table_usgs.py, but end result is json dict with unique lake ID
     #usgs_df = id_table.loc[id_table['source'] == 'usgs']
-    usgs_df = update_usgs_lake_names()
-    usgs_df.to_csv('usgs_test_from_id_table.csv')
+    #usgs_df = update_usgs_lake_names()
+    usgs_df = pd.read_csv('usgs_test_from_id_table.csv')
+    #usgs_df.to_csv('usgs_test_from_id_table.csv')
     usgs_df = usgs_df.rename(columns={'station_nm': 'lake_name'})
     usgs_id_table = id_table.loc[id_table['source'] == 'usgs']
     usgs_id_table = usgs_id_table.loc[usgs_id_table.index.difference(usgs_id_table.dropna().index)]
@@ -210,9 +211,9 @@ def reference_table_metadata_json_replace():
     print('USGS metadata prepped')
 
 
-    print(usgs_dict)
+    # print(usgs_dict)
     print(grealm_dict)
-    print(hydroweb_dict)
+    # print(hydroweb_dict)
     cursor = connection.cursor()
     # Execute mysql commands
     sql_command = u"UPDATE `reference_ID` SET `metadata` = (%s) WHERE `id_No` = (%s);"

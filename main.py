@@ -14,7 +14,7 @@ def main():
     while True:
         user_input = str(input("[u]pdate or [r]eplace data?: ").lower())
         if user_input == 'r':
-            #reference_tbls.replace_reference_id_table()
+            reference_tbls.replace_reference_id_table()
             reference_table_metadata_json_replace()
             print('Reference table deleted and replaced\nProcess Completed')
 
@@ -24,15 +24,15 @@ def main():
             if update_input == 'l':
                 print('Retrieving existing lake levels...')
                 existing_table = get_lake_table()
-                print('Begin Update process')
-                try:
-                    update_grealm_lake_levels(existing_table)
-                except ValueError:
-                    pass
-                try:
-                    update_hydroweb_lake_levels(existing_table)
-                except ValueError:
-                    pass
+                # print('Begin Update process')
+                # try:
+                #     update_grealm_lake_levels(existing_table)
+                # except ValueError:
+                #     pass
+                # try:
+                #     update_hydroweb_lake_levels(existing_table)
+                # except ValueError:
+                #     pass
                 try:
                     update_usgs_lake_levels(existing_table)
                 except ValueError:

@@ -103,7 +103,7 @@ def update_usgs_lake_levels(data_table):
                         con=sql_engine,
                         index=False,
                         if_exists='append',
-                        chunksize=2000
+                        chunksize=100000
                         )
     if not missing_sites:
         print('All sites processed')

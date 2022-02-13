@@ -47,7 +47,7 @@ def update_grealm_lake_levels(data_table):
             target_url = 'https://ipad.fas.usda.gov/lakes/images/lake{}.10d.2.txt'.format(grealm_id.zfill(4))
             source_df = pd.read_csv(target_url, skiprows=49, sep='\s+', header=None, parse_dates={'date': [2, 3, 4]},
                                     na_values=[99.99900, 999.99000, 9999.99000], infer_datetime_format=True,
-                                    error_bad_lines=False, skip_blank_lines=True)
+                                    on_bad_lines = 'skip', skip_blank_lines=True)
         except Exception as e:
             #print('*******************************************************')
             #print(e)
@@ -57,7 +57,7 @@ def update_grealm_lake_levels(data_table):
                 target_url = 'https://ipad.fas.usda.gov/lakes/images/lake{}.27a.2.txt'.format(grealm_id.zfill(4))
                 source_df = pd.read_csv(target_url, skiprows=49, sep='\s+', header=None, parse_dates={'date': [2, 3, 4]},
                                         na_values=[99.99900, 999.99000, 9999.99000], infer_datetime_format=True,
-                                        error_bad_lines=False, skip_blank_lines=True)
+                                        on_bad_lines = 'skip', skip_blank_lines=True)
             except Exception as e:
                 #print(e)
                 #print('No Data found for {}: {}'.format(grealm_id, name))
@@ -88,7 +88,7 @@ def update_grealm_lake_levels(data_table):
     sql_ready_df = sql_ready_df.rename(columns={'lake_name_x': 'lake_name', 'water_level_x': 'water_level'})
     sql_ready_df = sql_ready_df[~sql_ready_df[['id_No', 'date']].apply(frozenset, axis = 1).duplicated()]
     sql_ready_df['date'] = sql_ready_df['date'].dt.strftime('%Y-%m-%d')
-
+    sql_ready_df.to_csv("sql_dump_LL.csv")
     sql_ready_df.to_sql('lake_water_level',
                         con=sql_engine,
                         index=False,
@@ -96,6 +96,7 @@ def update_grealm_lake_levels(data_table):
                         chunksize=2000
                         )
     print("GREALM-USDA Lake Levels Updated")
+
     sql_engine.close()
 if __name__ == '__main__':
     from db_create import create_tables

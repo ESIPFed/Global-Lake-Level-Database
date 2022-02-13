@@ -63,7 +63,6 @@ def replace_reference_id_table():
         print('--------Overwriting database--------')
         lake_reference_df.to_sql('reference_ID', con=sql_engine, if_exists='replace', index_label='id_No',
                                  chunksize=100000)
-        print(lake_reference_df.head(100))
         return lake_reference_df
 
 
