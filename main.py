@@ -24,15 +24,15 @@ def main():
             if update_input == 'l':
                 print('Retrieving existing lake levels...')
                 existing_table = get_lake_table()
-                # print('Begin Update process')
-                # try:
-                #     update_grealm_lake_levels(existing_table)
-                # except ValueError:
-                #     pass
-                # try:
-                #     update_hydroweb_lake_levels(existing_table)
-                # except ValueError:
-                #     pass
+                print('Begin Update process')
+                try:
+                    update_grealm_lake_levels(existing_table)
+                except ValueError:
+                    pass
+                try:
+                    update_hydroweb_lake_levels(existing_table)
+                except ValueError:
+                    pass
                 try:
                     update_usgs_lake_levels(existing_table)
                 except ValueError:
